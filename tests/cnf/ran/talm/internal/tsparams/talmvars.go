@@ -27,11 +27,4 @@ var (
 		"Unable to select clusters: cluster %s is not a ManagedCluster", NonExistentClusterName)
 	// TalmNonExistentPolicyMessage is the condition message for when a policy is non-existent.
 	TalmNonExistentPolicyMessage = fmt.Sprintf("Missing managed policies: [%s]", NonExistentPolicyName)
-
-	// Spoke1Name is the name of the first spoke cluster.
-	Spoke1Name string
-	// Spoke2Name is the name of the second spoke cluster.
-	Spoke2Name string
-	// TalmVersion talm version.
-	TalmVersion string
 )
