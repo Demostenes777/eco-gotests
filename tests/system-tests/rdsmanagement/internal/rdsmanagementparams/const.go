@@ -48,6 +48,8 @@ const (
 	OdfNS = "openshift-storage"
 	// OdfOperatorName is the name of the ODF operator.
 	OdfOperatorName = "odf-operator"
+	// StorageClassName is a storage class name.
+	StorageClassName = "ocs-storagecluster-cephfs"
 
 	// QuayOperatorName is the name of the Quay operator.
 	QuayOperatorName = "quay-operator"
