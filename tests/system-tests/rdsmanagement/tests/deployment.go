@@ -12,5 +12,17 @@ var _ = Describe(
 	Ordered,
 	ContinueOnFailure,
 	Label(rdsmanagementparams.Label), func() {
-		// Add tests here
+
+		It("Check system reserved memory for master nodes",
+			rdsmanagementcommon.SetSystemReservedMemoryForMasterNodes)
+
+		It("Checking clusterversion",
+			rdsmanagementcommon.CheckingClusterversion)
+
+		It("Verifies that all node are ready",
+			rdsmanagementcommon.WaitAllNodesAreReady)
+
+		It("Verify that the cluster is operational",
+			rdsmanagementcommon.VerifyClusterIsOperational)
+
 	})

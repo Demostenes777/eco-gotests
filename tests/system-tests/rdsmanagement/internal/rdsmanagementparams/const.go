@@ -1,10 +1,12 @@
-package rdsmanagementconfig
+package rdsmanagementparams
 
 const (
 	// Label is used to select system tests for management cluster deployment.
 	Label = "rdsmanagement"
 	// LabelValidateDeployment is used to select all basic management cluster deployment tests.
 	LabelValidateDeployment = "rds-management-deployment"
+	// excluding odf part.
+	LabelRdsManagementOperators = "rdsmanagementoperators"
 	// LabelValidateOdf is used to select ODF deployment and configuration tests.
 	LabelValidateOdf = "rds-management-odf"
 	// LabelValidateIdm is used to select IDM deployment and configuration tests.
@@ -15,24 +17,23 @@ const (
 	LabelValidateSatellite = "rds-management-satellite"
 	// LabelValidateQuay is used to select Quay deployment and configuration tests.
 	LabelValidateQuay = "rds-management-quay"
-	// LabelValidateOpenshiftVirtualization is used to select OpenShift Virtualization deployment and 
+	// LabelValidateOpenshiftVirtualization is used to select OpenShift Virtualization deployment and
 	// configuration tests.
 	LabelValidateOpenshiftVirtualization = "rds-management-openshift-virtualization"
 
 	// RdsManagementLogLevel configures logging level for management related tests.
 	RdsManagementLogLevel = 90
 
-	
 	// AppsNadName is the name of the NetworkAttachmentDefinition used by the applications.
 	AppsNadName = "apps-nad"
-    // SatelliteNadName is the name of the NetworkAttachmentDefinition used by the Satellite.
+	// SatelliteNadName is the name of the NetworkAttachmentDefinition used by the Satellite.
 	SatelliteNadName = "sat-nad"
 
 	// NMStateOperatorName is the name of the NMState operator.
 	NMStateOperatorName = "kubernetes-nmstate-operator"
 	// NMStateInstanceName is the name of the NMState instance.
 	NMStateInstanceName = "nmstate"
-	
+
 	// PerformanceAddonOperatorName is the name of the Performance Addon operator.
 	PerformanceAddonOperatorName = "performance-addon-operator"
 
@@ -44,6 +45,8 @@ const (
 	// LocalStorageOperatorName is the name of the Local Storage operator.
 	LocalStorageOperatorName = "local-storage-operator"
 
+	// ODFNamespace is an odf namespace.
+	ODFNamespace = "openshift-storage"
 	// OdfNS is the namespace of ODF.
 	OdfNS = "openshift-storage"
 	// OdfOperatorName is the name of the ODF operator.
@@ -53,7 +56,7 @@ const (
 
 	// QuayOperatorName is the name of the Quay operator.
 	QuayOperatorName = "quay-operator"
-	
+
 	// MetalLBOperatorName is the name of the MetalLB operator.
 	MetalLBOperatorName = "metallb-operator"
 	// MetalLBInstanceName is a metallb operator namespace.
@@ -89,7 +92,7 @@ const (
 	LoggingNS = "openshift-logging"
 	// LoggingOperatorName is the name of the OpenShift Logging operator.
 	LoggingOperatorName = "cluster-logging"
-	
+
 	// AnsibleOperatorName is the name of the Ansible Automation Platform operator.
 	AnsibleOperatorName = "ansible-automation-platform-operator"
 	// AnsibleInstanceKind is the Ansible Automation Platform instance kind.
@@ -133,4 +136,13 @@ const (
 
 	// ConstantTrueString constant to fix linter warning.
 	ConstantTrueString = "True"
+
+	// KubeletConfigName is a identifier of a Kubernetes Kubelet configuration.
+	KubeletConfigName = "set-sysreserved-master"
+
+	// SystemReservedCPU systemreserved cpu value.
+	SystemReservedCPU = "500m"
+
+	// SystemReservedMemory systemreserved memory value.
+	SystemReservedMemory = "27Gi"
 )
