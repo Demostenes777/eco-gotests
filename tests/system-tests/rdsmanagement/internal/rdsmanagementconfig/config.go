@@ -21,14 +21,21 @@ const (
 	PathToDefaultRDSManagementParamsFile = "./default.yaml"
 )
 
-// IDMDetails structure to hold BMC details.
-type IDMDetails struct {
-	Username   			string `json:"username"`
-	Password   			string `json:"password"`
-	IPAddress  			string `json:"ip"`
-	FQDN 				string `json:"fqdn"`
-	IPAAdminPass 		string `json:"ipaadminpass"`
-	IPADirMgrPass 		string `json:"ipadirmgrpass"`
+// EnvSliceString holds a []string parsed from environment variable.
+type EnvSliceString []string
+
+// Decode - method for envconfig package to parse environment variable,
+// as a separator triple pipe '|||' is used.
+func (ess *EnvSliceString) Decode(value string) error {
+	resultSlice := []string{}
+
+	log.Printf("EnvSliceString: Processing record: %q", value)
+
+	resultSlice = append(resultSlice, strings.Split(value, "|||")...)
+
+	*ess = resultSlice
+
+	return nil
 }
 
 
@@ -72,22 +79,36 @@ type ManagementConfig struct {
 
 	// IDMDeployed indicates whether IDM has been deployed or not
 	IDMDeployed      		bool `yaml:"rdsmanagement_idm_deployed" envconfig:"ECO_RDSMANAGEMENT_IDM_DEPLOYED"`
+	IDMConfig struct {
+		Username      		string `yaml:"username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_USERNAME"`
+		Password   			string `yaml:"password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_PASSWORD"`
+		Group 				string `yaml:"group" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_GROUP"`
+		IPAddress 			string `yaml:"ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IP_ADDRESS"`
+		ReplicaIPAaddress	string `yaml:"replica_ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_IP_ADDRESS"`
+		// IPA admin user (by default admin)
+		IPAAdminUser		string `yaml:"ipa_admin_user" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_ADMIN_USER"`
+		// IPA admin password 
+		IPAAdminPass 		string `yaml:"ipa_admin_pass" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_ADMIN_PASS"`
+		// IPA directory manager password
+		IPADirMgrPass 		string `yaml:"ipa_dir_mgr_pass" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_DIR_MGR_PASS"`
+		IDMOcpBindPassword	string `yaml:"idm_ocp_bind_password" envconfig:"ECO_RDSMANAGEMENT_IDM_OCP_BIND_PASSWORD"`
+	} `yaml:"rdsmanagement_idm_config"`
+
 	// SatelliteDeployed indicates whether Satellite has been deployed or not
 	SatelliteDeployed      	bool `yaml:"rdsmanagement_satellite_deployed" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_DEPLOYED"`
+	SatelliteIPAddress      string `yaml:"rdsmanagement_satellite_ip_address" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_IP_ADDRESS"`
+	//nolint:lll,nolintlint
+	SatelliteActivationKeys EnvSliceString `yaml:"rdsmanagement_satellite_activation_keys" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_ACTIVATION_KEYS"`
+	//nolint:lll,nolintlint
+	SatelliteProducts		EnvSliceString `yaml:"rdsmanagement_satellite_products" envconfig:"ECO_RDSMANAGEMENT_PRODUCTS"`
+
 	// StfDeployed indicates whether STF has been deployed or not
 	StfDeployed      		bool `yaml:"rdsmanagement_stf_deployed" envconfig:"ECO_RDSMANAGEMENT_STF_DEPLOYED"`
 
 	OdfMaxDeviceCount 		int `yaml:"rdsmanagement_odf_max_device_count" envconfig:"ECO_RDSMANAGEMENT_ODF_MAX_DEVICE_COUNT"`
 
-	IDMConfig struct {
-		Username      		string `yaml:"username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_USERNAME"`
-		Password   			string `yaml:"password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_PASSWORD"`
-		IPAddress 			string `yaml:"ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IP_ADDRESS"`
-		FQDN 				string `yaml:"fqdn" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_FQDN"`
-		IPAAdminPass 		string `yaml:"ipa_admin_pass" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_ADMIN_PASS"`
-		IPADirMgrPass 		string `yaml:"ipa_dir_mgr_pass" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_DIR_MGR_PASS"`
-		IDMOcpBindPassword	string `yaml:"idm_ocp_bind_password" envconfig:"ECO_RDSMANAGEMENT_IDM_OCP_BIND_PASSWORD"`
-	} `yaml:"rdsmanagement_idm_config"`
+	QuayFqdn				string `yaml:"rdsmanagement_quay_fqdn" envconfig:"ECO_RDSMANAGEMENT_QUAY_FQDN"`
+
 }
 
 // NewManagementConfig returns instance of ManagementConfig config type.

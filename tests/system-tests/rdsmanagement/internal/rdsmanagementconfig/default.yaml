@@ -27,9 +27,34 @@ rdsmanagement_odf_max_device_count: 2
 rdsmanagement_idm_config:
     username: 'test'
     password: 'shell'
-    ip_address: 'test'
-    fqdn: 'shell'
+    group: 'test_group'
+    ip_address: '1.1.1.1'
+    replica_ip_address: '2.2.2.2'
     ipa_admin_pass: 'test'
     ipa_dir_mgr_pass: 'shell'
     idm_ocp_bind_password: 'pass'
-      
+
+rdsmanagement_satellite_ip_address: '3.3.3.3'
+rdsmanagement_quay_fqdn: "quay_fqdn"   
+
+rdsmanagement_satellite_activation_keys: 
+- "osp16-2-dev-overcloud"
+- "idm-dev-rhel9"
+- "rhel8-dev"
+rdsmanagement_satellite_products: 
+- "Advanced Virtualization for RHEL 8 x86_64 RPMs"
+- "Fast Datapath for RHEL 8 x86_64 RPMs"
+- "Red Hat Ansible Engine 2.9 for RHEL 8 x86_64 RPMs"
+- "Red Hat Ceph Storage Tools 4 for RHEL 8 x86_64 RPMs"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream - Extended Update Support RPMs 8.4"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS - Extended Update Support RPMs 8.4"
+- "Red Hat Enterprise Linux 8 for x86_64 - High Availability - Extended Update Support RPMs 8.4"
+- "Red Hat OpenStack Platform 16.2 for RHEL 8 x86_64 RPMs"
+- "Red Hat Satellite Tools 6.10 for RHEL 8 x86_64 RPMs"
+- "Red Hat Enterprise Linux 9 for x86_64 - AppStream RPMs 9"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream - Extended Update Support RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS - Extended Update Support RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - High Availability - Extended Update Support RPMs 8.6"
+

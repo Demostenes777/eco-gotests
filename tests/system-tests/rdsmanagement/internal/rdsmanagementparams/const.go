@@ -1,4 +1,4 @@
-package rdsmanagementconfig
+package rdsmanagementparams
 
 const (
 	// Label is used to select system tests for management cluster deployment.
