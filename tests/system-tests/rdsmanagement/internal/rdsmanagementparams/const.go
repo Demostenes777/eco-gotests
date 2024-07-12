@@ -15,8 +15,7 @@ const (
 	LabelValidateSatellite = "rds-management-satellite"
 	// LabelValidateQuay is used to select Quay deployment and configuration tests.
 	LabelValidateQuay = "rds-management-quay"
-	// LabelValidateOpenshiftVirtualization is used to select OpenShift Virtualization deployment and 
-	// configuration tests.
+	// LabelValidateOpenshiftVirtualization is used to select OpenShift Virtualization deployment and configuration tests.
 	LabelValidateOpenshiftVirtualization = "rds-management-openshift-virtualization"
 
 	// RdsManagementLogLevel configures logging level for management related tests.
@@ -120,7 +119,7 @@ const (
 
 	// StfOperatorName is the namespace of STF.
 	StfOperatorName = "service-telemetry-operator"
-	// STFSubscriptionName is the ECK operator subscription name.
+	// StfSubscriptionName is the ECK operator subscription name.
 	StfSubscriptionName = "service-telemetry-operator"
 
 	// ConditionTypeReadyString constant to fix linter warning.

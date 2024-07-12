@@ -25,9 +25,11 @@ rdsmanagement_stf_deployed: true
 rdsmanagement_odf_max_device_count: 2
 
 rdsmanagement_idm_config:
-    username: 'test'
-    password: 'shell'
-    group: 'test_group'
+    vm_username: 'test'
+    vm_password: 'shell'
+    test_username: 'test'
+    test_password: 'shell'
+    test_group: 'test_group'
     ip_address: '1.1.1.1'
     replica_ip_address: '2.2.2.2'
     ipa_admin_pass: 'test'

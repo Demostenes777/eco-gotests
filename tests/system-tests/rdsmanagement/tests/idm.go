@@ -12,5 +12,17 @@ var _ = Describe(
 	Ordered,
 	ContinueOnFailure,
 	Label(rdsmanagementparams.Label), func() {
-		// Add tests here
+		Context("Installed IDM server", Label("idm"), func() {
+			It("Verifies that SSH login to IDM VM is working",
+				rdsmanagementcommon.VerifySSHAccess)
+
+			It("Verifies that SSH login to IDM web interface is successful",
+				rdsmanagementcommon.VerifyWebAccess)
+
+			It("Verifies that new user accounts can be created",
+				rdsmanagementcommon.VerifyNewUserAccountCreation)
+
+			It("Verifies that new groups can be created",
+				rdsmanagementcommon.VerifyNewGroupCreation)
+		})
 	})
