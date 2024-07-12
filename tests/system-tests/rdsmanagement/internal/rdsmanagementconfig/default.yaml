@@ -1,0 +1,60 @@
+---
+rdsmanagement_cluster_version: 4.10
+rdsmanagement_master_nodes_count: 3
+rdsmanagement_worker_nodes_count: 2
+
+rdsmanagement_apps_ns: mano-apps
+rdsmanagement_performance_addon_ns: performance-addon-operator
+rdsmanagement_openshift_virtualization_ns: openshift-cnv 
+rdsmanagement_quay_ns: quay-enterprise
+rdsmanagement_metallb_ns: metallb
+rdsmanagement_acm_ns: open-cluster-management
+rdsmanagement_kafka_ns: kafka-cluster
+rdsmanagement_kafka_adapter_ns: prom-kafka-adapter
+rdsmanagement_ansible_ns: ansible-automation-platform
+rdsmanagement_amq7_ns: amq7-interconnect-operator
+rdsmanagement_stf_ns: service-telemetry
+
+rdsmanagement_kubelet_cpu_allocation_ns: 8000m
+rdsmanagement_kubelet_memory_allocation_ns: 16Gi
+
+rdsmanagement_idm_deployed: true
+rdsmanagement_satellite_deployed: true
+rdsmanagement_stf_deployed: true
+
+rdsmanagement_odf_max_device_count: 2
+
+rdsmanagement_idm_config:
+    username: 'test'
+    password: 'shell'
+    group: 'test_group'
+    ip_address: '1.1.1.1'
+    replica_ip_address: '2.2.2.2'
+    ipa_admin_pass: 'test'
+    ipa_dir_mgr_pass: 'shell'
+    idm_ocp_bind_password: 'pass'
+
+rdsmanagement_satellite_ip_address: '3.3.3.3'
+rdsmanagement_quay_fqdn: "quay_fqdn"   
+
+rdsmanagement_satellite_activation_keys: 
+- "osp16-2-dev-overcloud"
+- "idm-dev-rhel9"
+- "rhel8-dev"
+rdsmanagement_satellite_products: 
+- "Advanced Virtualization for RHEL 8 x86_64 RPMs"
+- "Fast Datapath for RHEL 8 x86_64 RPMs"
+- "Red Hat Ansible Engine 2.9 for RHEL 8 x86_64 RPMs"
+- "Red Hat Ceph Storage Tools 4 for RHEL 8 x86_64 RPMs"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream - Extended Update Support RPMs 8.4"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS - Extended Update Support RPMs 8.4"
+- "Red Hat Enterprise Linux 8 for x86_64 - High Availability - Extended Update Support RPMs 8.4"
+- "Red Hat OpenStack Platform 16.2 for RHEL 8 x86_64 RPMs"
+- "Red Hat Satellite Tools 6.10 for RHEL 8 x86_64 RPMs"
+- "Red Hat Enterprise Linux 9 for x86_64 - AppStream RPMs 9"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - AppStream - Extended Update Support RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - BaseOS - Extended Update Support RPMs 8.6"
+- "Red Hat Enterprise Linux 8 for x86_64 - High Availability - Extended Update Support RPMs 8.6"
+
