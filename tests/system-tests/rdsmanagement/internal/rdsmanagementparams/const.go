@@ -22,11 +22,6 @@ const (
 	// RdsManagementLogLevel configures logging level for management related tests.
 	RdsManagementLogLevel = 90
 
-	
-	// AppsNadName is the name of the NetworkAttachmentDefinition used by the applications.
-	AppsNadName = "apps-nad"
-    // SatelliteNadName is the name of the NetworkAttachmentDefinition used by the Satellite.
-	SatelliteNadName = "sat-nad"
 
 	// NMStateOperatorName is the name of the NMState operator.
 	NMStateOperatorName = "kubernetes-nmstate-operator"
