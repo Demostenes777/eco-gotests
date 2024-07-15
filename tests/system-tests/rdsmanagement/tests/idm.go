@@ -14,15 +14,12 @@ var _ = Describe(
 	Label(rdsmanagementparams.Label), func() {
 		Context("Installed IDM server", Label("idm"), func() {
 			It("Verifies that SSH login to IDM VM is working",
-				rdsmanagementcommon.VerifySSHAccess)
+				rdsmanagementcommon.VerifyIDMInstallation)
 
 			It("Verifies that SSH login to IDM web interface is successful",
-				rdsmanagementcommon.VerifyWebAccess)
+				rdsmanagementcommon.VerifyIDMReplication)
 
 			It("Verifies that new user accounts can be created",
-				rdsmanagementcommon.VerifyNewUserAccountCreation)
-
-			It("Verifies that new groups can be created",
-				rdsmanagementcommon.VerifyNewGroupCreation)
+				rdsmanagementcommon.VerifyOCPIntegrationWithIDM)
 		})
 	})

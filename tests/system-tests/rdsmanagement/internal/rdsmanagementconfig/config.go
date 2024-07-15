@@ -85,16 +85,22 @@ type ManagementConfig struct {
 		VMUsername string `yaml:"vm_username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_USERNAME"`
 		// Password of the test user
 		VMPassword string `yaml:"vm_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_PASSWORD"`
-		// Username of the test user
-		TestUsername string `yaml:"test_username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_USERNAME"`
+		// First name of the test user
+		TestUserGivenname string `yaml:"test_user_givenname" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_USER_GIVENNAME"`
+		// Surname of the test user
+		TestUserSn string `yaml:"test_user_sn" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_USER_SN"`
 		// Password of the test user
 		TestPassword string `yaml:"test_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_PASSWORD"`
 		// Test group
 		TestGroup string `yaml:"test_group" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_GROUP"`
 		// IDM IP address
 		IPAddress string `yaml:"ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IP_ADDRESS"`
+		// IDM URL
+		URL string `yaml:"url" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_URL"`
 		// IDM Replica IP address
 		ReplicaIPAaddress string `yaml:"replica_ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_IP_ADDRESS"`
+		// IDM Replica URL
+		ReplicaURL string `yaml:"replica_url" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_URL"`
 		// IPA admin user (by default admin)
 		IPAAdminUser string `yaml:"ipa_admin_user" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_ADMIN_USER"`
 		// IPA admin password

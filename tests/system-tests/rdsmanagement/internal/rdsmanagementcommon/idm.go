@@ -1,52 +1,130 @@
 package rdsmanagementcommon
 
 import (
+	"crypto/tls"
+	"fmt"
+	"math/rand"
+	"net/http"
 	"time"
 
+	"github.com/ccin2p3/go-freeipa/freeipa"
+	"github.com/golang/glog"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/openshift-kni/eco-gotests/tests/system-tests/rdsmanagement/internal/rdsmanagementinittools"
+	"github.com/openshift-kni/eco-gotests/tests/system-tests/rdsmanagement/internal/rdsmanagementparams"
 	"golang.org/x/crypto/ssh"
 )
 
-// VerifySSHAccess verifies that SSH login to IDM VM is working.
-func VerifySSHAccess() {
-	server := RDSManagementConfig.IDMConfig.IPAddress
-	user := RDSManagementConfig.IDMConfig.VMUsername
-	password := RDSManagementConfig.IDMConfig.VMPassword
+// VerifyIDMInstallation the IDM installation.
+func VerifyIDMInstallation() {
+	vmUsername := RDSManagementConfig.IDMConfig.VMUsername
+	vmPassword := RDSManagementConfig.IDMConfig.VMPassword
+	serverIP := RDSManagementConfig.IDMConfig.IPAddress
+	serverURL := RDSManagementConfig.IDMConfig.URL
+	ipaAdminUser := RDSManagementConfig.IDMConfig.IPAAdminUser
+	ipaAdminPass := RDSManagementConfig.IDMConfig.IPAAdminPass
+	givenName := RDSManagementConfig.IDMConfig.TestUserGivenname
+	surname := RDSManagementConfig.IDMConfig.TestUserSn
+	groupName := RDSManagementConfig.IDMConfig.TestGroup
+
+	By("Verify that SSH login to IDM VM works")
 
 	config := &ssh.ClientConfig{
-		User: user,
+		User: vmUsername,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
+			ssh.Password(vmPassword),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout:         5 * time.Second,
 	}
 
-	connection, err := ssh.Dial("tcp", server, config)
-	Expect(err).NotTo(HaveOccurred(), "Failed to connect to the SSH server")
-	defer connection.Close()
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		fmt.Sprintf("[%s] Starting SSH connection", serverIP))
 
-	session, err := connection.NewSession()
-	Expect(err).NotTo(HaveOccurred(), "Failed to create the SSH session")
-	defer session.Close()
+	sshConnection, err := ssh.Dial("tcp", serverIP, config)
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("[%s] Failed to connect the SSH server, err: %v", serverIP, err))
+	defer sshConnection.Close()
 
-	output, err := session.CombinedOutput("echo test")
-	Expect(err).NotTo(HaveOccurred(), "Failed to run the command on SSH server")
-	Expect(string(output)).To(Equal("test\n"), "Unexpected command output")
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		fmt.Sprintf("[%s] Establishing SSH session", serverIP))
+
+	sshSession, err := sshConnection.NewSession()
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("[%s] Failed to create the SSH session, err: %v", serverIP, err))
+	defer sshSession.Close()
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		fmt.Sprintf("[%s] Running command", serverIP))
+
+	sshOutput, err := sshSession.CombinedOutput("echo hello")
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("Failed to run command: %s, err: %v", serverIP, err))
+	Expect(string(sshOutput)).To(Equal("hello\n"), "Unexpected command output")
+
+	By("Verify that login to IDM web interface is successful")
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		fmt.Sprintf("[%s] Starting web-based connection", serverIP))
+
+	tspt := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: false, // Check if it works, change to true otherwise
+		},
+	}
+
+	idmConnection, err := freeipa.Connect(serverURL, tspt, ipaAdminUser, ipaAdminPass)
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("[%s] Failed to login to server, err: %v", serverIP, err))
+
+	By("Verify that new user accounts can be created")
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		"[%s] Adding new user", serverIP)
+
+	r := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	uid := fmt.Sprintf("%s%v", givenName, r.Int())
+
+	userRes, err := idmConnection.UserAdd(&freeipa.UserAddArgs{
+		Givenname: givenName,
+		Sn:        surname,
+	}, &freeipa.UserAddOptionalArgs{
+		UID: freeipa.String(uid),
+	})
+
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("[%s] Failed to add user, err: %v", serverIP, err))
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		"Added user %v", userRes.Result.Cn)
+
+	By("Verify that new groups can be created")
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		"[%s] Adding new group", serverIP)
+
+	r = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	gid := r.Int()
+
+	groupRes, err := idmConnection.GroupAdd(&freeipa.GroupAddArgs{
+		Cn: groupName,
+	}, &freeipa.GroupAddOptionalArgs{
+		Gidnumber: &gid,
+	})
+
+	Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("[%s] Failed to add group, err: %v", serverIP, err))
+
+	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof(
+		"Added group %v", groupRes.Result.Cn)
 }
 
-// VerifyWebAccess verifies that login to IDM web interface is successful.
-func VerifyWebAccess() {
-	// todo - Add test logic
+// VerifyIDMReplication verifies the IDM replication
+func VerifyIDMReplication() {
+
 }
 
-// VerifyNewUserAccountCreation verifies that new user accounts can be created.
-func VerifyNewUserAccountCreation() {
-	// todo - Add test logic
-}
+// VerifyOCPIntegrationWithIDM verifies the OCP and IDM integration
+func VerifyOCPIntegrationWithIDM() {
 
-// VerifyNewGroupCreation verifies that new user groups can be created.
-func VerifyNewGroupCreation() {
-	// todo - Add test logic
 }

@@ -21,12 +21,11 @@ const (
 	// RdsManagementLogLevel configures logging level for management related tests.
 	RdsManagementLogLevel = 90
 
-
 	// NMStateOperatorName is the name of the NMState operator.
 	NMStateOperatorName = "kubernetes-nmstate-operator"
 	// NMStateInstanceName is the name of the NMState instance.
 	NMStateInstanceName = "nmstate"
-	
+
 	// PerformanceAddonOperatorName is the name of the Performance Addon operator.
 	PerformanceAddonOperatorName = "performance-addon-operator"
 
@@ -47,7 +46,7 @@ const (
 
 	// QuayOperatorName is the name of the Quay operator.
 	QuayOperatorName = "quay-operator"
-	
+
 	// MetalLBOperatorName is the name of the MetalLB operator.
 	MetalLBOperatorName = "metallb-operator"
 	// MetalLBInstanceName is a metallb operator namespace.
@@ -83,7 +82,7 @@ const (
 	LoggingNS = "openshift-logging"
 	// LoggingOperatorName is the name of the OpenShift Logging operator.
 	LoggingOperatorName = "cluster-logging"
-	
+
 	// AnsibleOperatorName is the name of the Ansible Automation Platform operator.
 	AnsibleOperatorName = "ansible-automation-platform-operator"
 	// AnsibleInstanceKind is the Ansible Automation Platform instance kind.
