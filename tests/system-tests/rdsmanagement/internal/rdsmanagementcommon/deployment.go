@@ -21,8 +21,8 @@ import (
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/rdsmanagement/internal/rdsmanagementparams"
 )
 
-// WaitAllNodesAreReady waits for all the nodes in the cluster to report Ready state.
-func WaitAllNodesAreReady(ctx SpecContext) {
+// VerifieAllNodesAreReady waits for all the nodes in the cluster to report Ready state.
+func VerifieAllNodesAreReady(ctx SpecContext) {
 	By("Checking all nodes are Ready")
 
 	Eventually(func(ctx SpecContext) bool {
@@ -53,8 +53,8 @@ func WaitAllNodesAreReady(ctx SpecContext) {
 		"Some nodes are notReady")
 }
 
-// SetSystemReservedMemoryForMasterNodes assert system reserved memory for masters succeeded.
-func SetSystemReservedMemoryForMasterNodes(ctx SpecContext) {
+// VerifyKubeletResourceReservationHasBeenIncreased assert system reserved memory for masters succeeded.
+func VerifyKubeletResourceReservationHasBeenIncreased(ctx SpecContext) {
 	glog.V(rdsmanagementparams.RdsManagementLogLevel).Infof("Verify system reserved memory config for masters succeeded")
 
 	systemReservedBuilder := mco.NewKubeletConfigBuilder(APIClient, rdsmanagementparams.KubeletConfigName).

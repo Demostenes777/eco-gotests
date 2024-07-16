@@ -25,7 +25,7 @@ import (
 
 var (
 	ocsLocalvolumesetName  = "ocs-deviceset"
-	storageclusterName     = "ocs-storagecluster"
+	storageclusterName     = rdsmanagementparams.StorageClusterName
 	odfConsolePlugin       = "odf-console"
 	odfOperatorDeployments = []string{"csi-addons-controller-manager", "noobaa-operator",
 		"ocs-operator", "odf-console", "odf-operator-controller-manager", "rook-ceph-operator"}

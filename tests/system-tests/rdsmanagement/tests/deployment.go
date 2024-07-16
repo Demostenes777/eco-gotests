@@ -14,13 +14,10 @@ var _ = Describe(
 	Label(rdsmanagementparams.Label), func() {
 
 		It("Check system reserved memory for master nodes",
-			rdsmanagementcommon.SetSystemReservedMemoryForMasterNodes)
-
-		It("Checking clusterversion",
-			rdsmanagementcommon.CheckingClusterversion)
+			rdsmanagementcommon.VerifyKubeletResourceReservationHasBeenIncreased)
 
 		It("Verifies that all node are ready",
-			rdsmanagementcommon.WaitAllNodesAreReady)
+			rdsmanagementcommon.VerifieAllNodesAreReady)
 
 		It("Verify that the cluster is operational",
 			rdsmanagementcommon.VerifyClusterIsOperational)

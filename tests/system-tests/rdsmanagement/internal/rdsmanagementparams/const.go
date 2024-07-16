@@ -53,7 +53,8 @@ const (
 	OdfOperatorName = "odf-operator"
 	// StorageClassName is a storage class name.
 	StorageClassName = "ocs-storagecluster-cephfs"
-
+	// StorageClasterName is a storage claster name.
+	StorageClusterName = "ocs-storagecluster"
 	// QuayOperatorName is the name of the Quay operator.
 	QuayOperatorName = "quay-operator"
 
@@ -145,4 +146,7 @@ const (
 
 	// SystemReservedMemory systemreserved memory value.
 	SystemReservedMemory = "27Gi"
+
+	// ConfigurationFolderName path to the folder dedicated to the saving all initial-deployment configuration.
+	ConfigurationFolderName = "rds-configfiles"
 )

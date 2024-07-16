@@ -23,6 +23,9 @@ rdsmanagement_satellite_deployed: true
 rdsmanagement_stf_deployed: true
 
 rdsmanagement_odf_max_device_count: 2
+rdsmanagement_odf_replica: 1
+rdsmanagement_odf_portable: false,
+rdsmanagement_odf_name: ocsLocalvolumesetName,
 
 rdsmanagement_idm_config:
     username: 'test'

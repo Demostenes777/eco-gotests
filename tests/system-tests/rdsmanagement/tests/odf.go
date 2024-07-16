@@ -12,5 +12,7 @@ var _ = Describe(
 	Ordered,
 	ContinueOnFailure,
 	Label(rdsmanagementparams.Label), func() {
-		// Add tests here
+
+		rdsmanagementcommon.VerifyODFSuite()
+
 	})
