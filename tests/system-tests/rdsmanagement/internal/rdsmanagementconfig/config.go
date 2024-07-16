@@ -81,6 +81,10 @@ type ManagementConfig struct {
 	IDMDeployed bool `yaml:"rdsmanagement_idm_deployed" envconfig:"ECO_RDSMANAGEMENT_IDM_DEPLOYED"`
 	// IDMConfig is the IDM configuration
 	IDMConfig struct {
+		// Name of the IDM VM
+		VMName string `yaml:"vm_name" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_NAME"`
+		// Name of the IDM Replica VM
+		ReplicaVMName string `yaml:"replica_vm_name" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_VM_NAME"`
 		// Username of the IDM VM
 		VMUsername string `yaml:"vm_username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_USERNAME"`
 		// Password of the test user

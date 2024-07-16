@@ -14,6 +14,11 @@ import (
 	. "github.com/openshift-kni/eco-gotests/tests/system-tests/rdsmanagement/internal/rdsmanagementinittools"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/rdsmanagement/internal/rdsmanagementparams"
 	"golang.org/x/crypto/ssh"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/client-go/kubernetes"
+    "k8s.io/client-go/tools/clientcmd"
+    kubevirtv1 "kubevirt.io/client-go/api/v1"
+    kubevirtclient "kubevirt.io/client-go/kubecli"
 )
 
 // VerifyIDMInstallation the IDM installation.
@@ -121,7 +126,7 @@ func VerifyIDMInstallation() {
 
 // VerifyIDMReplication verifies the IDM replication
 func VerifyIDMReplication() {
-
+	
 }
 
 // VerifyOCPIntegrationWithIDM verifies the OCP and IDM integration

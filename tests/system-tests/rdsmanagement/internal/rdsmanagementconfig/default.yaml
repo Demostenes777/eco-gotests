@@ -25,6 +25,8 @@ rdsmanagement_stf_deployed: true
 rdsmanagement_odf_max_device_count: 2
 
 rdsmanagement_idm_config:
+    vm_name: 'idm1'
+    replica_vm_name: 'idm2'
     vm_username: 'test'
     vm_password: 'shell'
     test_user_givenname: 'Jon'
