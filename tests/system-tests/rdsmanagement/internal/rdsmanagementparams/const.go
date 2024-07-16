@@ -20,7 +20,8 @@ const (
 	// LabelValidateOpenshiftVirtualization is used to select OpenShift Virtualization deployment and
 	// configuration tests.
 	LabelValidateOpenshiftVirtualization = "rds-management-openshift-virtualization"
-
+	// OpenShiftVirtualizationNamespace is the namespace of openshift cnv
+	OpenShiftVirtualizationNamespace = "kubevirt-hyperconverged"
 	// RdsManagementLogLevel configures logging level for management related tests.
 	RdsManagementLogLevel = 90
 

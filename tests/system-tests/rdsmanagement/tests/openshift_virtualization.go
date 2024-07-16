@@ -12,5 +12,7 @@ var _ = Describe(
 	Ordered,
 	ContinueOnFailure,
 	Label(rdsmanagementparams.Label), func() {
-		// Add tests here
+		It("Check system reserved memory for master nodes",
+			rdsmanagementcommon.VerifyOpenShiftVirtualization)
+
 	})
