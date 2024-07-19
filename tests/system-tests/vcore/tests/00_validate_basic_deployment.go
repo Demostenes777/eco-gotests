@@ -17,28 +17,4 @@ var _ = Describe(
 		vcorecommon.VerifyCGroupDefault()
 
 		vcorecommon.VerifyPostDeploymentConfig()
-
-		vcorecommon.VerifyNMStateSuite()
-
-		vcorecommon.VerifyMetaLBSuite()
-
-		vcorecommon.VerifyLSOSuite()
-
-		vcorecommon.VerifyODFSuite()
-
-		vcorecommon.VerifyESKAndCLOSuite()
-
-		vcorecommon.VerifyServiceMeshSuite()
-
-		vcorecommon.VerifyHelmSuite()
-
-		vcorecommon.VerifyRedisSuite()
-
-		vcorecommon.VerifyNTOSuite()
-
-		vcorecommon.VerifySRIOVSuite()
-
-		vcorecommon.VerifyKedaSuite()
-
-		vcorecommon.VerifyNROPSuite()
 	})
