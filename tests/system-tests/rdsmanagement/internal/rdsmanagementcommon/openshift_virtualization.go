@@ -23,7 +23,7 @@ var (
 )
 
 func VerifyOpenShiftVirtualization(ctx SpecContext) {
-	err := apiobjectshelper.VerifyNamespaceExists(APIClient, rdsmanagementparams.OpenShiftVirtualizationNamespace, time.Second)
+	err := apiobjectshelper.VerifyNamespaceExists(APIClient, rdsmanagementparams.ODFNamespace, time.Second)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to pull %q namespace", rdsmanagementparams.OpenShiftVirtualizationNamespace))
 	// Verify all pods are running
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{

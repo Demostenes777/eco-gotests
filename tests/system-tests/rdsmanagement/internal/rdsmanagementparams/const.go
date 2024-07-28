@@ -72,6 +72,8 @@ const (
 
 	// AcmOperatorName is the name of the ACM operator.
 	AcmOperatorName = "advanced-cluster-management"
+	// AcmNameSpace is the name of the ACM namespace.
+	ACMNameSpace = "open-cluster-management"
 	// AcmInstanceKind is the ACM instance kind.
 	AcmInstanceKind = "MultiClusterHub"
 	// AcmInstanceName is the name of the ACM instance name.
