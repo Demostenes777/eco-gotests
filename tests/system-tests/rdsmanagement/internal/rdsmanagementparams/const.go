@@ -21,7 +21,7 @@ const (
 	// configuration tests.
 	LabelValidateOpenshiftVirtualization = "rds-management-openshift-virtualization"
 	// OpenShiftVirtualizationNamespace is the namespace of openshift cnv
-	OpenShiftVirtualizationNamespace = "kubevirt-hyperconverged"
+	OpenShiftVirtualizationNamespace = "openshift-cnv"
 	// RdsManagementLogLevel configures logging level for management related tests.
 	RdsManagementLogLevel = 90
 
@@ -78,6 +78,9 @@ const (
 	AcmInstanceKind = "MultiClusterHub"
 	// AcmInstanceName is the name of the ACM instance name.
 	AcmInstanceName = "multiclusterhub"
+
+	// ArgoCDNamespace is the name of the ArgoCD namespace.
+	ArgoCDNamespace = "openshift-gitops-operator"
 
 	// KafkaOperatorName is the name of the Kafka operator.
 	KafkaOperatorName = "amq-streams"
