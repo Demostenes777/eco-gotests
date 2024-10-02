@@ -48,8 +48,10 @@ type ManagementConfig struct {
 	// AppsNS is the namespace where the applications are installed.
 	AppsNS string `yaml:"rdsmanagement_apps_ns" envconfig:"ECO_RDSMANAGEMENT_APPS_NS"`
 	// PerformanceAddonNamespace is the namespace of the Performance Addon operator.
+	//nolint:lll,nolintlint
 	PerformanceAddonNS string `yaml:"rdsmanagement_performance_addon_ns" envconfig:"ECO_RDSMANAGEMENT_PERFORMANCE_ADDON_NS"`
 	// OpenshiftVirtualizationNamespace is the namespace of the OpenShift Virtualization operator.
+	//nolint:lll,nolintlint
 	OpenshiftVirtualizationNS string `yaml:"rdsmanagement_openshift_virtualization_ns" envconfig:"ECO_RDSMANAGEMENT_OPENSHIFT_VIRTUALIZATION_NS"`
 	// QuayNamespace is the namespace of Quay.
 	QuayNS string `yaml:"rdsmanagement_quay_ns" envconfig:"ECO_RDSMANAGEMENT_QUAY_NS"`
@@ -69,24 +71,49 @@ type ManagementConfig struct {
 	StfNS string `yaml:"rdsmanagement_stf_ns" envconfig:"ECO_RDSMANAGEMENT_STF_NS"`
 
 	// KubeletCPUAllocation is the CPU allocated by the kubelet.
+	//nolint:lll,nolintlint
 	KubeletCPUAllocation string `yaml:"rdsmanagement_kubelet_cpu_allocation_ns" envconfig:"ECO_RDSMANAGEMENT_KUBELET_CPU_ALLOCATION_NS"`
-	//KubeletMemoryAllocation is the memory allocated by the kubelet.
+	// KubeletMemoryAllocation is the memory allocated by the kubelet.
+	//nolint:lll,nolintlint
 	KubeletMemoryAllocation string `yaml:"rdsmanagement_kubelet_memory_allocation_ns" envconfig:"ECO_RDSMANAGEMENT_KUBELET_MEMORY_ALLOCATION_NS"`
 
 	// IDMDeployed indicates whether IDM has been deployed or not
 	IDMDeployed bool `yaml:"rdsmanagement_idm_deployed" envconfig:"ECO_RDSMANAGEMENT_IDM_DEPLOYED"`
 	// IDMConfig is the IDM configuration
 	IDMConfig struct {
-		// Username of the test user
-		Username string `yaml:"username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_USERNAME"`
+		// Name of the IDM VM
+		VMName string `yaml:"vm_name" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_NAME"`
+		// Name of the IDM Replica VM
+		ReplicaVMName string `yaml:"replica_vm_name" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_VM_NAME"`
+		// Username of the IDM VM
+		VMUsername string `yaml:"vm_username" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_USERNAME"`
 		// Password of the test user
-		Password string `yaml:"password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_PASSWORD"`
+		VMPassword string `yaml:"vm_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_VM_PASSWORD"`
+		// First name of the test user
+		TestUserGivenname string `yaml:"test_user_givenname" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_USER_GIVENNAME"`
+		// Surname of the test user
+		TestUserSn string `yaml:"test_user_sn" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_USER_SN"`
+		// Password of the test user
+		TestPassword string `yaml:"test_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_PASSWORD"`
 		// Test group
-		Group string `yaml:"group" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_GROUP"`
+		TestGroup string `yaml:"test_group" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_GROUP"`
+		// First name of the replica test user
+		//nolint:lll,nolintlint
+		ReplicaTestUserGivenname string `yaml:"replica_test_user_givenname" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_USER_GIVENNAME"`
+		// Surname of the test user
+		//nolint:lll,nolintlint
+		ReplicaTestUserSn string `yaml:"replica_test_user_sn" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_USER_SN"`
+		// Password of the test user
+		//nolint:lll,nolintlint
+		ReplicaTestPassword string `yaml:"replica_test_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_PASSWORD"`
 		// IDM IP address
 		IPAddress string `yaml:"ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IP_ADDRESS"`
+		// IDM URL
+		URL string `yaml:"url" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_URL"`
 		// IDM Replica IP address
 		ReplicaIPAaddress string `yaml:"replica_ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_IP_ADDRESS"`
+		// IDM Replica URL
+		ReplicaURL string `yaml:"replica_url" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_URL"`
 		// IPA admin user (by default admin)
 		IPAAdminUser string `yaml:"ipa_admin_user" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IPA_ADMIN_USER"`
 		// IPA admin password
@@ -98,8 +125,10 @@ type ManagementConfig struct {
 	} `yaml:"rdsmanagement_idm_config"`
 
 	// SatelliteDeployed indicates whether Satellite has been deployed or not
+	//nolint:lll,nolintlint
 	SatelliteDeployed bool `yaml:"rdsmanagement_satellite_deployed" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_DEPLOYED"`
 	// Satellite IP address
+	//nolint:lll,nolintlint
 	SatelliteIPAddress string `yaml:"rdsmanagement_satellite_ip_address" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_IP_ADDRESS"`
 	//nolint:lll,nolintlint
 	SatelliteActivationKeys EnvSliceString `yaml:"rdsmanagement_satellite_activation_keys" envconfig:"ECO_RDSMANAGEMENT_SATELLITE_ACTIVATION_KEYS"`
