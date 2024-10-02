@@ -97,6 +97,15 @@ type ManagementConfig struct {
 		TestPassword string `yaml:"test_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_PASSWORD"`
 		// Test group
 		TestGroup string `yaml:"test_group" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_TEST_GROUP"`
+		// First name of the replica test user
+		//nolint:lll,nolintlint
+		ReplicaTestUserGivenname string `yaml:"replica_test_user_givenname" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_USER_GIVENNAME"`
+		// Surname of the test user
+		//nolint:lll,nolintlint
+		ReplicaTestUserSn string `yaml:"replica_test_user_sn" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_USER_SN"`
+		// Password of the test user
+		//nolint:lll,nolintlint
+		ReplicaTestPassword string `yaml:"replica_test_password" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_REPLICA_TEST_PASSWORD"`
 		// IDM IP address
 		IPAddress string `yaml:"ip_address" envconfig:"ECO_RDSMANAGEMENT_IDM_CONFIG_IP_ADDRESS"`
 		// IDM URL
