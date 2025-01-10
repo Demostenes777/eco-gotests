@@ -13,10 +13,10 @@ var _ = Describe(
 	ContinueOnFailure,
 	Label(ocloudparams.Label), func() {
 		Context("Configured hub cluster", Label("ocloud-ibi-provisioning"), func() {
-			It("Verifies the successful provisioning of a single SNO cluster using IBI",
-				ocloudcommon.VerifySingleIbiSnoProvisioning)
+			It("Verifies the successful provisioning of a single SNO cluster",
+				ocloudcommon.VerifySuccessfulIbiSnoProvisioning)
 
-			It("Verifies the failed provisioning of a single SNO cluster using IBI",
-				ocloudcommon.VerifySingleIbiSnoProvisioning)
+			It("Verifies the failed provisioning of a single SNO cluster",
+				ocloudcommon.VerifyFailedIbiSnoProvisioning)
 		})
 	})

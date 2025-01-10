@@ -9,13 +9,19 @@ import (
 )
 
 func SuccessfulOperatorUpgrade() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes J")
+    })
 }
 
 func FailedOperatorUpgrade() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes K")
+    })
 }
 
 func FailedPartialOperatorUpgrade() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes L")
+    })
 }

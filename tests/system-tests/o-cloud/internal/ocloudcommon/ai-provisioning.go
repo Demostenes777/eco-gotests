@@ -8,30 +8,44 @@ import (
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 )
 
-func VerifySuccessfulSingleAiSnoProvisioning() {
-	// todo
+func VerifySuccessfulSnoProvisioning() {
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes A")
+    })
 }
 
-func VerifySuccessfulSingleAiSnoDeprovisioning() {
-	// todo
+func VerifySuccessfulSnoDeprovisioning() {
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes B")
+    })
 }
 
-func VerifyFailedSingleAiSnoProvisioning() {
-	// todo
+func VerifyFailedSnoProvisioning() {
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes C")
+    })
 }
 
 func VerifySimultaneousSnoProvisioningSameClusterTemplate() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes D")
+    })
 }
 
 func VerifySimultaneousSnoDeprovisioningSameClusterTemplate() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes E")
+    })
 }
 
 func VerifySimultaneousSnoProvisioningDifferentClusterTemplate() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes F")
+    })
 }
 
 func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplate() {
-	// todo
+	It("should fail with a message", func() {
+        Fail("Intentional failure for demonstration purposes G")
+    })
 }	
