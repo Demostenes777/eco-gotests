@@ -66,40 +66,30 @@ func NewSubscriptionBuilder(apiClient *clients.Settings, subName, subNamespace, 
 		glog.V(100).Infof("The Name of the Subscription is empty")
 
 		builder.errorMsg = "subscription 'subName' cannot be empty"
-
-		return builder
 	}
 
 	if subNamespace == "" {
 		glog.V(100).Infof("The Namespace of the Subscription is empty")
 
 		builder.errorMsg = "subscription 'subNamespace' cannot be empty"
-
-		return builder
 	}
 
 	if catalogSource == "" {
 		glog.V(100).Infof("The Catalogsource of the Subscription is empty")
 
 		builder.errorMsg = "subscription 'catalogSource' cannot be empty"
-
-		return builder
 	}
 
 	if catalogSourceNamespace == "" {
 		glog.V(100).Infof("The Catalogsource namespace of the Subscription is empty")
 
 		builder.errorMsg = "subscription 'catalogSourceNamespace' cannot be empty"
-
-		return builder
 	}
 
 	if packageName == "" {
 		glog.V(100).Infof("The Package name of the Subscription is empty")
 
 		builder.errorMsg = "subscription 'packageName' cannot be empty"
-
-		return builder
 	}
 
 	return builder
@@ -115,7 +105,9 @@ func (builder *SubscriptionBuilder) WithChannel(channel string) *SubscriptionBui
 
 	if channel == "" {
 		builder.errorMsg = "can not redefine subscription with empty channel"
+	}
 
+	if builder.errorMsg != "" {
 		return builder
 	}
 
@@ -135,7 +127,9 @@ func (builder *SubscriptionBuilder) WithStartingCSV(startingCSV string) *Subscri
 
 	if startingCSV == "" {
 		builder.errorMsg = "can not redefine subscription with empty startingCSV"
+	}
 
+	if builder.errorMsg != "" {
 		return builder
 	}
 
@@ -159,7 +153,9 @@ func (builder *SubscriptionBuilder) WithInstallPlanApproval(
 			"or \"Manual\"")
 
 		builder.errorMsg = "Subscription 'installPlanApproval' must be either \"Automatic\" or \"Manual\""
+	}
 
+	if builder.errorMsg != "" {
 		return builder
 	}
 
@@ -203,18 +199,20 @@ func (builder *SubscriptionBuilder) Create() (*SubscriptionBuilder, error) {
 	glog.V(100).Infof("Creating the Subscription %s in namespace %s",
 		builder.Definition.Name, builder.Definition.Namespace)
 
-	if builder.Exists() {
-		return builder, nil
-	}
+	var err error
+	if !builder.Exists() {
+		err = builder.apiClient.Create(context.TODO(), builder.Definition)
 
-	err := builder.apiClient.Create(context.TODO(), builder.Definition)
-	if err != nil {
-		return builder, err
+		if err != nil {
+			glog.V(100).Infof("Failed to create Subscription")
+
+			return nil, err
+		}
 	}
 
 	builder.Object = builder.Definition
 
-	return builder, nil
+	return builder, err
 }
 
 // Exists checks whether the given Subscription exists.
@@ -349,13 +347,13 @@ func (builder *SubscriptionBuilder) validate() (bool, error) {
 	if builder.Definition == nil {
 		glog.V(100).Infof("The %s is undefined", resourceCRD)
 
-		return false, fmt.Errorf(msg.UndefinedCrdObjectErrString(resourceCRD))
+		builder.errorMsg = msg.UndefinedCrdObjectErrString(resourceCRD)
 	}
 
 	if builder.apiClient == nil {
 		glog.V(100).Infof("The %s builder apiclient is nil", resourceCRD)
 
-		return false, fmt.Errorf("%s builder cannot have nil apiClient", resourceCRD)
+		builder.errorMsg = fmt.Sprintf("%s builder cannot have nil apiClient", resourceCRD)
 	}
 
 	if builder.errorMsg != "" {

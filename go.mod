@@ -30,10 +30,10 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
 	gopkg.in/k8snetworkplumbingwg/multus-cni.v4 v4.1.2
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.30.5
-	k8s.io/apimachinery v0.30.5
+	k8s.io/api v0.31.0
+	k8s.io/apimachinery v0.31.4
 	k8s.io/client-go v12.0.0+incompatible
-	sigs.k8s.io/controller-runtime v0.17.6
+	sigs.k8s.io/controller-runtime v0.19.4
 )
 
 require (
@@ -150,7 +150,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/moby/spdystream v0.2.0 // indirect
+	github.com/moby/spdystream v0.4.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -192,13 +192,13 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/crypto v0.26.0
-	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/crypto v0.32.0
+	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
@@ -208,10 +208,10 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.24.5 // indirect
-	k8s.io/apiextensions-apiserver v0.30.5 // indirect
-	k8s.io/apiserver v0.30.5 // indirect
+	k8s.io/apiextensions-apiserver v0.31.0 // indirect
+	k8s.io/apiserver v0.31.0 // indirect
 	k8s.io/cli-runtime v0.30.5 // indirect
-	k8s.io/component-base v0.30.5 // indirect
+	k8s.io/component-base v0.31.0 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-aggregator v0.29.4 // indirect
@@ -233,17 +233,21 @@ require (
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/containers/image/v5 v5.31.0
+	github.com/openshift-kni/oran-o2ims/api/hardwaremanagement v0.0.0-20250110000732-912f8653cb5a
+	github.com/openshift-kni/oran-o2ims/api/provisioning v0.0.0-20241112205445-5b445634c20c
 )
 
 require (
 	github.com/containers/storage v1.54.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/moby/sys/mountinfo v0.7.1 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 )
 
 replace (
@@ -256,5 +260,7 @@ replace (
 	github.com/openshift/assisted-service/models => github.com/openshift/assisted-service/models v0.0.0-20241008123739-b3cc2e3746d2 // release-4.17
 	github.com/openshift/installer => github.com/openshift/installer v0.9.0-master.0.20230306121016-3485fddca1c3 // master
 	github.com/portworx/sched-ops => github.com/portworx/sched-ops v1.20.4-rc1
-	k8s.io/client-go => k8s.io/client-go v0.29.9
+	k8s.io/client-go => k8s.io/client-go v0.31.0
 )
+
+replace github.com/openshift-kni/eco-goinfra => /home/kni/eco-goinfra

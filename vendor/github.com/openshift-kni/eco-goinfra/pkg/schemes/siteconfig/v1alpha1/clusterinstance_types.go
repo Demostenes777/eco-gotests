@@ -402,14 +402,11 @@ type ClusterInstanceSpec struct {
 }
 
 const (
-	ManifestRenderedSuccess    = "rendered"
-	ManifestRenderedFailure    = "failed"
-	ManifestRenderedValidated  = "validated"
-	ManifestSuppressed         = "suppressed"
-	ManifestDeleted            = "deleted"
-	ManifestDeletionInProgress = "deletion-in-progress"
-	ManifestDeletionFailure    = "deletion-failed"
-	ManifestDeletionTimedOut   = "deletion-attempt-timed-out"
+	ManifestRenderedSuccess   = "rendered"
+	ManifestRenderedFailure   = "failed"
+	ManifestRenderedValidated = "validated"
+	ManifestSuppressed        = "suppressed"
+	ManifestPruneFailure      = "pruning-attempt-failed"
 )
 
 // ManifestReference contains enough information to let you locate the

@@ -2,13 +2,11 @@ package ocloudparams
 
 import (
 	provisioningv1alpha1 "github.com/openshift-kni/oran-o2ims/api/provisioning/v1alpha1"
-	inventoryv1alpha1 "github.com/openshift-kni/oran-o2ims/api/inventory/v1alpha1"
 	hardwaremanagementv1alpha1 "github.com/openshift-kni/oran-o2ims/api/hardwaremanagement/v1alpha1"
 
 
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/systemtestsparams"
 	"github.com/openshift-kni/k8sreporter"
-	corev1 "k8s.io/api/core/v1"
 )
 
 var (
@@ -25,7 +23,6 @@ var (
 	ReporterCRDsToDump = []k8sreporter.CRData{
 		{Cr: &provisioningv1alpha1.ClusterTemplateList{}},
 		{Cr: &provisioningv1alpha1.ProvisioningRequestList{}},
-		{Cr: &inventoryv1alpha1.InventoryList{}},
 		{Cr: &hardwaremanagementv1alpha1.HardwareTemplateList{}},
 		{Cr: &hardwaremanagementv1alpha1.NodeList{}},
 		{Cr: &hardwaremanagementv1alpha1.NodePoolList{}},

@@ -62,7 +62,7 @@ func NewBuilderFromObjectString(apiClient *clients.Settings, almExample string) 
 		"Initializing new Builder structure from almExample string with clusterPolicy name: %s",
 		clusterPolicy.Name)
 
-	builder := &Builder{
+	builder := Builder{
 		apiClient:  apiClient.Client,
 		Definition: clusterPolicy,
 	}
@@ -71,11 +71,9 @@ func NewBuilderFromObjectString(apiClient *clients.Settings, almExample string) 
 		glog.V(100).Infof("The ClusterPolicy object definition is nil")
 
 		builder.errorMsg = "ClusterPolicy 'Object.Definition' is nil"
-
-		return builder
 	}
 
-	return builder
+	return &builder
 }
 
 // Pull loads an existing clusterPolicy into Builder struct.
@@ -95,7 +93,7 @@ func Pull(apiClient *clients.Settings, name string) (*Builder, error) {
 		return nil, err
 	}
 
-	builder := &Builder{
+	builder := Builder{
 		apiClient: apiClient.Client,
 		Definition: &nvidiagpuv1.ClusterPolicy{
 			ObjectMeta: metav1.ObjectMeta{
@@ -116,7 +114,7 @@ func Pull(apiClient *clients.Settings, name string) (*Builder, error) {
 
 	builder.Definition = builder.Object
 
-	return builder, nil
+	return &builder, nil
 }
 
 // Get returns clusterPolicy object if found.
@@ -193,18 +191,16 @@ func (builder *Builder) Create() (*Builder, error) {
 
 	glog.V(100).Infof("Creating the ClusterPolicy %s", builder.Definition.Name)
 
-	if builder.Exists() {
-		return builder, nil
+	var err error
+	if !builder.Exists() {
+		err = builder.apiClient.Create(context.TODO(), builder.Definition)
+
+		if err == nil {
+			builder.Object = builder.Definition
+		}
 	}
 
-	err := builder.apiClient.Create(context.TODO(), builder.Definition)
-	if err != nil {
-		return builder, err
-	}
-
-	builder.Object = builder.Definition
-
-	return builder, nil
+	return builder, err
 }
 
 // Update renovates the existing ClusterPolicy object with the definition in builder.
@@ -234,7 +230,7 @@ func (builder *Builder) Update(force bool) (*Builder, error) {
 		}
 	}
 
-	return builder, nil
+	return builder, err
 }
 
 // validate will check that the builder and builder definition are properly initialized before
@@ -251,13 +247,13 @@ func (builder *Builder) validate() (bool, error) {
 	if builder.Definition == nil {
 		glog.V(100).Infof("The %s is undefined", resourceCRD)
 
-		return false, fmt.Errorf(msg.UndefinedCrdObjectErrString(resourceCRD))
+		builder.errorMsg = msg.UndefinedCrdObjectErrString(resourceCRD)
 	}
 
 	if builder.apiClient == nil {
 		glog.V(100).Infof("The %s builder apiclient is nil", resourceCRD)
 
-		return false, fmt.Errorf("%s builder cannot have nil apiClient", resourceCRD)
+		builder.errorMsg = fmt.Sprintf("%s builder cannot have nil apiClient", resourceCRD)
 	}
 
 	if builder.errorMsg != "" {

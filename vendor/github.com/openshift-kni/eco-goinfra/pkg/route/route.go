@@ -40,7 +40,7 @@ func NewBuilder(apiClient *clients.Settings, name, nsname, serviceName string) *
 		return nil
 	}
 
-	builder := &Builder{
+	builder := Builder{
 		apiClient: apiClient.Client,
 		Definition: &routev1.Route{
 			ObjectMeta: metav1.ObjectMeta{
@@ -60,27 +60,21 @@ func NewBuilder(apiClient *clients.Settings, name, nsname, serviceName string) *
 		glog.V(100).Infof("The name of the route is empty")
 
 		builder.errorMsg = "route 'name' cannot be empty"
-
-		return builder
 	}
 
 	if nsname == "" {
 		glog.V(100).Infof("The namespace of the route is empty")
 
 		builder.errorMsg = "route 'nsname' cannot be empty"
-
-		return builder
 	}
 
 	if serviceName == "" {
 		glog.V(100).Infof("The serviceName of the route is empty")
 
 		builder.errorMsg = "route 'serviceName' cannot be empty"
-
-		return builder
 	}
 
-	return builder
+	return &builder
 }
 
 // Pull loads existing route from cluster.
@@ -93,7 +87,7 @@ func Pull(apiClient *clients.Settings, name, nsname string) (*Builder, error) {
 		return nil, fmt.Errorf("the apiClient cannot be nil")
 	}
 
-	builder := &Builder{
+	builder := Builder{
 		apiClient: apiClient.Client,
 		Definition: &routev1.Route{
 			ObjectMeta: metav1.ObjectMeta{
@@ -121,7 +115,7 @@ func Pull(apiClient *clients.Settings, name, nsname string) (*Builder, error) {
 
 	builder.Definition = builder.Object
 
-	return builder, nil
+	return &builder, nil
 }
 
 // WithTargetPortNumber adds a target port to the route by number.
@@ -183,7 +177,9 @@ func (builder *Builder) WithHostDomain(hostDomain string) *Builder {
 		glog.V(100).Infof("Received empty route hostDomain")
 
 		builder.errorMsg = "route host domain cannot be empty string"
+	}
 
+	if builder.errorMsg != "" {
 		return builder
 	}
 
@@ -206,7 +202,9 @@ func (builder *Builder) WithWildCardPolicy(wildcardPolicy string) *Builder {
 
 		builder.errorMsg = fmt.Sprintf("received unsupported route wildcardPolicy: supported policies %v",
 			supportedWildCardPolicies())
+	}
 
+	if builder.errorMsg != "" {
 		return builder
 	}
 
@@ -252,7 +250,7 @@ func (builder *Builder) Get() (*routev1.Route, error) {
 		return nil, err
 	}
 
-	return route, nil
+	return route, err
 }
 
 // Create makes a route according to the route definition and stores the created object in the route builder.
@@ -318,13 +316,13 @@ func (builder *Builder) validate() (bool, error) {
 	if builder.Definition == nil {
 		glog.V(100).Infof("The %s is undefined", resourceCRD)
 
-		return false, fmt.Errorf(msg.UndefinedCrdObjectErrString(resourceCRD))
+		builder.errorMsg = msg.UndefinedCrdObjectErrString(resourceCRD)
 	}
 
 	if builder.apiClient == nil {
 		glog.V(100).Infof("The %s builder apiclient is nil", resourceCRD)
 
-		return false, fmt.Errorf("%s builder cannot have nil apiClient", resourceCRD)
+		builder.errorMsg = fmt.Sprintf("%s builder cannot have nil apiClient", resourceCRD)
 	}
 
 	if builder.errorMsg != "" {

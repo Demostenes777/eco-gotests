@@ -184,15 +184,16 @@ func (builder *Builder) Create() (*Builder, error) {
 		builder.Definition.Name, builder.Definition.Namespace,
 	)
 
+	var err error
 	if !builder.Exists() {
-		err := builder.apiClient.Create(context.TODO(), builder.Definition)
+		err = builder.apiClient.Create(context.TODO(), builder.Definition)
 
 		if err == nil {
 			builder.Object = builder.Definition
 		}
 	}
 
-	return builder, nil
+	return builder, err
 }
 
 // Delete removes MetalLb object from a cluster.

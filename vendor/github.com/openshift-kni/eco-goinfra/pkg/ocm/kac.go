@@ -186,7 +186,7 @@ func (builder *KACBuilder) Create() (*KACBuilder, error) {
 
 	builder.Object = builder.Definition
 
-	return builder, nil
+	return builder, err
 }
 
 // Update changes the existing KlusterletAddonConfig resource on the cluster, falling back to deleting and recreating if

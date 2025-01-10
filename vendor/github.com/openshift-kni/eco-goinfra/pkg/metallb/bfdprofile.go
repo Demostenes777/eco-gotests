@@ -354,8 +354,6 @@ func (builder *BFDBuilder) withBoolFlagFor(flagName string, flagValue bool) *BFD
 		builder.Definition.Spec.PassiveMode = &flagValue
 	default:
 		builder.errorMsg = "invalid bool flag name parameter"
-
-		return builder
 	}
 
 	return builder
@@ -379,8 +377,6 @@ func (builder *BFDBuilder) withInterval(intervalName string, interval uint32) *B
 		builder.Definition.Spec.EchoInterval = &interval
 	default:
 		builder.errorMsg = "invalid interval parameters"
-
-		return builder
 	}
 
 	return builder
