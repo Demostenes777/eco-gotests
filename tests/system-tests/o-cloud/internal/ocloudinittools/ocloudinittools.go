@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	// APIClient provides API access to cluster.
-	APIClient *clients.Settings
+	// HubAPIClient provides API access to hub cluster.
+	HubAPIClient *clients.Settings
 	// OCLoudTestConfig provides access to O-Cloud system tests configuration parameters.
 	OCloudTestConfig *ocloudconfig.OCloudConfig
 )
@@ -17,5 +17,5 @@ var (
 // access to all vars within init function. It is recommended to import this package using dot import.
 func init() {
 	OCloudTestConfig = ocloudconfig.NewOCloudConfig()
-	APIClient = inittools.APIClient
+	HubAPIClient = inittools.APIClient
 }

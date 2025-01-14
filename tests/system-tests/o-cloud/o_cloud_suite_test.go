@@ -14,6 +14,7 @@ import (
 	systemtestsparams "github.com/openshift-kni/eco-gotests/tests/system-tests/internal/systemtestsparams"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 	_ "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/tests"
+	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudcommon"
 )
 
 var (
@@ -40,6 +41,13 @@ var _ = BeforeSuite(func() {
 		_, err := testNS.Create()
 		Expect(err).ToNot(HaveOccurred(), "error creating the test namespace")
 	}
+
+	ocloudcommon.VerifyACM()
+	ocloudcommon.VerifyGitOps()
+	ocloudcommon.VerifySiteConfigOperator()
+	ocloudcommon.VerifyOCloudManagerOperator()
+	ocloudcommon.VerifyHardwareManagerPluginOperator()
+
 })
 
 var _ = AfterSuite(func() {
