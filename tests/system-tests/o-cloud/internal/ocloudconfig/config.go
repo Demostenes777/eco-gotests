@@ -19,7 +19,6 @@ const (
 // OCloudConfig type keeps o-cloud configuration.
 type OCloudConfig struct {
 	*systemtestsconfig.SystemTestsConfig
-	// todo
 }
 
 // NewOCloudConfig returns instance of OCloudConfig config type.

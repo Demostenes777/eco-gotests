@@ -1,7 +1,6 @@
 package o_cloud_system_test
 
 import (
-	"fmt"
 	"runtime"
 	"testing"
 
@@ -11,10 +10,9 @@ import (
 	"github.com/openshift-kni/eco-goinfra/pkg/reportxml"
 	. "github.com/openshift-kni/eco-gotests/tests/internal/inittools"
 	"github.com/openshift-kni/eco-gotests/tests/internal/reporter"
-	systemtestsparams "github.com/openshift-kni/eco-gotests/tests/system-tests/internal/systemtestsparams"
+	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudcommon"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 	_ "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/tests"
-	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudcommon"
 )
 
 var (
@@ -31,23 +29,11 @@ func TestOCloud(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	if !testNS.Exists() {
-		fmt.Printf("Namespace %s doesn't exist. Creating.", testNS.Definition.Name)
-
-		for key, value := range systemtestsparams.PrivilegedNSLabels {
-			testNS.WithLabel(key, value)
-		}
-
-		_, err := testNS.Create()
-		Expect(err).ToNot(HaveOccurred(), "error creating the test namespace")
-	}
-
 	ocloudcommon.VerifyACM()
-	ocloudcommon.VerifyGitOps()
+	ocloudcommon.VerifyGitOpsOperator()
 	ocloudcommon.VerifySiteConfigOperator()
-	ocloudcommon.VerifyOCloudManagerOperator()
-	ocloudcommon.VerifyHardwareManagerPluginOperator()
-
+	ocloudcommon.VerifyOranO2ImsOperator()
+	ocloudcommon.VerifyOranHardwareManagerPluginOperator()
 })
 
 var _ = AfterSuite(func() {
