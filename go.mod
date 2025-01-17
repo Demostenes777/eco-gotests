@@ -30,7 +30,7 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
 	gopkg.in/k8snetworkplumbingwg/multus-cni.v4 v4.1.2
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.31.0
+	k8s.io/api v0.31.4
 	k8s.io/apimachinery v0.31.4
 	k8s.io/client-go v12.0.0+incompatible
 	sigs.k8s.io/controller-runtime v0.19.4
@@ -208,16 +208,16 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.24.5 // indirect
-	k8s.io/apiextensions-apiserver v0.31.0 // indirect
-	k8s.io/apiserver v0.31.0 // indirect
-	k8s.io/cli-runtime v0.30.5 // indirect
-	k8s.io/component-base v0.31.0 // indirect
+	k8s.io/apiextensions-apiserver v0.31.4 // indirect
+	k8s.io/apiserver v0.31.4 // indirect
+	k8s.io/cli-runtime v0.31.4 // indirect
+	k8s.io/component-base v0.31.4 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-aggregator v0.29.4 // indirect
 	k8s.io/kube-openapi v0.0.0-20240730131305-7a9a4e85957e // indirect
-	k8s.io/kubectl v0.30.5 // indirect
-	k8s.io/kubelet v0.30.5
+	k8s.io/kubectl v0.31.4 // indirect
+	k8s.io/kubelet v0.31.4
 	knative.dev/pkg v0.0.0-20240423132823-3c6badc82748 // indirect
 	maistra.io/api v0.0.0-20230704084350-dfc96815fb16 // indirect
 	open-cluster-management.io/api v0.14.0 // indirect
