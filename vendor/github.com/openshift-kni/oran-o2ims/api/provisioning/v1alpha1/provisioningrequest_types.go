@@ -39,11 +39,13 @@ type ProvisioningRequestSpec struct {
 
 	// TemplateName defines the base name of the referenced ClusterTemplate.
 	// The full name of the ClusterTemplate is constructed as <TemplateName.TemplateVersion>.
+	// +kubebuilder:validation:MinLength=1
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Template Name",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	TemplateName string `json:"templateName"`
 
 	// TemplateVersion defines the version of the referenced ClusterTemplate.
 	// The full name of the ClusterTemplate is constructed as <TemplateName.TemplateVersion>.
+	// +kubebuilder:validation:MinLength=1
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Template Version",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	TemplateVersion string `json:"templateVersion"`
 
@@ -80,6 +82,17 @@ type ClusterDetails struct {
 
 	// Holds the first timestamp when the configuration was found NonCompliant for the cluster.
 	NonCompliantAt metav1.Time `json:"nonCompliantAt,omitempty"`
+}
+
+type Extensions struct {
+	// ClusterDetails references to the ClusterInstance.
+	ClusterDetails *ClusterDetails `json:"clusterDetails,omitempty"`
+
+	// NodePoolRef references to the NodePool.
+	NodePoolRef *NodePoolRef `json:"nodePoolRef,omitempty"`
+
+	// Holds policies that are matched with the ManagedCluster created by the ProvisioningRequest.
+	Policies []PolicyDetails `json:"policies,omitempty"`
 }
 
 // PolicyDetails holds information about an ACM policy.
@@ -133,6 +146,9 @@ type ProvisioningStatus struct {
 
 	// The resources that have been successfully provisioned as part of the provisioning process.
 	ProvisionedResources *ProvisionedResources `json:"provisionedResources,omitempty"`
+
+	// The timestamp of the last update to the provisioning status.
+	UpdateTime metav1.Time `json:"updateTime,omitempty"`
 }
 
 // ProvisioningRequestStatus defines the observed state of ProvisioningRequest
@@ -143,17 +159,9 @@ type ProvisioningRequestStatus struct {
 	//+operator-sdk:csv:customresourcedefinitions:type=status
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 
-	// ClusterDetails references to the ClusterInstance.
-	//+operator-sdk:csv:customresourcedefinitions:type=status
-	ClusterDetails *ClusterDetails `json:"clusterDetails,omitempty"`
-
-	// NodePoolRef references to the NodePool.
-	//+operator-sdk:csv:customresourcedefinitions:type=status
-	NodePoolRef *NodePoolRef `json:"nodePoolRef,omitempty"`
-
-	// Holds policies that are matched with the ManagedCluster created by the ProvisioningRequest.
-	//+operator-sdk:csv:customresourcedefinitions:type=status
-	Policies []PolicyDetails `json:"policies,omitempty"`
+	// Extensions contain extra details about the resources and the configuration used for/by
+	// the ProvisioningRequest.
+	Extensions Extensions `json:"extensions,omitempty"`
 
 	ProvisioningStatus ProvisioningStatus `json:"provisioningStatus,omitempty"`
 }

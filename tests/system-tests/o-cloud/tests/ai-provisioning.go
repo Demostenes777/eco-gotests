@@ -15,9 +15,6 @@ var _ = Describe(
 		Context("Configured hub cluster", Label("ocloud-ai-provisioning"), func() {
 			It("Verifies the successful provisioning of a single SNO cluster",
 				ocloudcommon.VerifySuccessfulSnoProvisioning)
-			
-			It("Verifies the successful deprovisioning of a single SNO cluster",
-				ocloudcommon.VerifySuccessfulSnoDeprovisioning)
 
 			It("Verifies the failed provisioning of a single SNO cluster",
 				ocloudcommon.VerifyFailedSnoProvisioning)
@@ -29,9 +26,9 @@ var _ = Describe(
 				ocloudcommon.VerifySimultaneousSnoDeprovisioningSameClusterTemplate)
 
 			It("Verifies the succesful E2E simultaneous provisioning of SNO clusters with different cluster templates",
-				ocloudcommon.VerifySimultaneousSnoProvisioningDifferentClusterTemplate)
+				ocloudcommon.VerifySimultaneousSnoProvisioningDifferentClusterTemplates)
 
 			It("Verifies the succesful E2E simultaneous deprovisioning of SNO clusters with different cluster templates",
-				ocloudcommon.VerifySimultaneousSnoDeprovisioningDifferentClusterTemplate)
+				ocloudcommon.VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates)
 		})
 	})

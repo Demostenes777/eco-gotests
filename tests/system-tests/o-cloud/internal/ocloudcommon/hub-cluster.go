@@ -5,13 +5,13 @@ import (
 )
 
 func VerifyACM() {
-	VerifyNamespaceExists(ocloudparams.AcmNamespace)
+	VerifyNamespaceExists(ocloudparams.AcmNamespace, nil)
 	VerifyCsvSuccessful(ocloudparams.AcmSubscriptionName, ocloudparams.AcmNamespace)
 	VerifyPodsRunning(ocloudparams.AcmNamespace)
 }
 
 func VerifyGitOpsOperator() {
-	VerifyNamespaceExists(ocloudparams.OpenshiftGitOpsNamespace)
+	VerifyNamespaceExists(ocloudparams.OpenshiftGitOpsNamespace, nil)
 	VerifyCsvSuccessful(ocloudparams.OpenshiftGitOpsSubscriptionName, ocloudparams.OpenshiftGitOpsNamespace)
 }
 
@@ -20,12 +20,12 @@ func VerifySiteConfigOperator() {
 }
 
 func VerifyOranO2ImsOperator() {
-	VerifyNamespaceExists(ocloudparams.OCloudO2ImsNamespace)
+	VerifyNamespaceExists(ocloudparams.OCloudO2ImsNamespace, nil)
 	VerifyCsvSuccessful(ocloudparams.OCloudO2ImsSubscriptionName, ocloudparams.OCloudO2ImsNamespace)
 }
 
 func VerifyOranHardwareManagerPluginOperator() {
-	VerifyNamespaceExists(ocloudparams.OCloudHardwareManagerPluginNamespace)
+	VerifyNamespaceExists(ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
 	VerifyCsvSuccessful(ocloudparams.OCloudHardwareManagerPluginSubscriptionName, 
 		ocloudparams.OCloudHardwareManagerPluginNamespace)
 }

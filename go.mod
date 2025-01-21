@@ -15,8 +15,8 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/metal3-io/baremetal-operator/apis v0.6.2
 	github.com/nmstate/kubernetes-nmstate/api v0.0.0-20240605150941-df565dd7bf35
-	github.com/onsi/ginkgo/v2 v2.20.2
-	github.com/onsi/gomega v1.34.2
+	github.com/onsi/ginkgo/v2 v2.22.2
+	github.com/onsi/gomega v1.36.2
 	github.com/openshift-kni/eco-goinfra v0.0.0-20250107181504-0fc848ce079b // latest
 	github.com/openshift-kni/k8sreporter v1.0.6
 	github.com/openshift/api v3.9.1-0.20191111211345-a27ff30ebf09+incompatible
@@ -30,8 +30,8 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
 	gopkg.in/k8snetworkplumbingwg/multus-cni.v4 v4.1.2
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.31.4
-	k8s.io/apimachinery v0.31.4
+	k8s.io/api v0.31.5
+	k8s.io/apimachinery v0.31.5
 	k8s.io/client-go v12.0.0+incompatible
 	sigs.k8s.io/controller-runtime v0.19.4
 )
@@ -115,7 +115,7 @@ require (
 	github.com/google/gnostic-models v0.6.9-0.20230804172637-c7be7c783f49 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/pprof v0.0.0-20240827171923-fa2c70bbbfe5 // indirect
+	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
@@ -194,30 +194,30 @@ require (
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/crypto v0.32.0
 	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/oauth2 v0.21.0 // indirect
+	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/term v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.24.0 // indirect
+	golang.org/x/tools v0.28.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.24.5 // indirect
-	k8s.io/apiextensions-apiserver v0.31.4 // indirect
-	k8s.io/apiserver v0.31.4 // indirect
-	k8s.io/cli-runtime v0.31.4 // indirect
-	k8s.io/component-base v0.31.4 // indirect
+	k8s.io/apiextensions-apiserver v0.31.5 // indirect
+	k8s.io/apiserver v0.31.5 // indirect
+	k8s.io/cli-runtime v0.31.5 // indirect
+	k8s.io/component-base v0.31.5 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-aggregator v0.29.4 // indirect
 	k8s.io/kube-openapi v0.0.0-20240730131305-7a9a4e85957e // indirect
-	k8s.io/kubectl v0.31.4 // indirect
-	k8s.io/kubelet v0.31.4
+	k8s.io/kubectl v0.31.5 // indirect
+	k8s.io/kubelet v0.31.5
 	knative.dev/pkg v0.0.0-20240423132823-3c6badc82748 // indirect
 	maistra.io/api v0.0.0-20230704084350-dfc96815fb16 // indirect
 	open-cluster-management.io/api v0.14.0 // indirect
@@ -233,8 +233,8 @@ require (
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/containers/image/v5 v5.31.0
-	github.com/openshift-kni/oran-o2ims/api/hardwaremanagement v0.0.0-20250110000732-912f8653cb5a
-	github.com/openshift-kni/oran-o2ims/api/provisioning v0.0.0-20241112205445-5b445634c20c
+	github.com/openshift-kni/oran-o2ims/api/hardwaremanagement v0.0.0-20250117215357-6ad6c09fc751
+	github.com/openshift-kni/oran-o2ims/api/provisioning v0.0.0-20250117185228-1f169640d123
 )
 
 require (
@@ -246,8 +246,15 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
+	github.com/openshift-kni/oran-hwmgr-plugin/api/hwmgr-plugin v0.0.0-20250117165412-cf3a6bb431bf // indirect
+	github.com/r3labs/diff/v3 v3.0.1 // indirect
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
+	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
+	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 )
 
 replace (
