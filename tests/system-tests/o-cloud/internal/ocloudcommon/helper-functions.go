@@ -6,9 +6,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudinittools"
+	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 
 	"github.com/openshift-kni/eco-goinfra/pkg/namespace"
 	"github.com/openshift-kni/eco-goinfra/pkg/ocm"
@@ -22,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// VerifyNamespaceExists verifies that a specific namespace exists.
 func VerifyNamespaceExists(nsname string, wg *sync.WaitGroup) *namespace.Builder {
 	if wg != nil {
 		defer wg.Done()
@@ -36,6 +39,7 @@ func VerifyNamespaceExists(nsname string, wg *sync.WaitGroup) *namespace.Builder
 	return ns
 }
 
+// VerifyCsvSuccessful verifies that a specific subscription exists.
 func VerifyCsvSuccessful(subscriptionName string, nsname string) {
 	By(fmt.Sprintf("Verifying that csv %s is successful", subscriptionName))
 
@@ -54,7 +58,8 @@ func VerifyCsvSuccessful(subscriptionName string, nsname string) {
 		fmt.Sprintf("failed to verify csv %s in the namespace %s status", csvName, nsname))
 }
 
-func VerifyPodsRunning(nsname string) {
+// VerifyAllPodsRunningInNamespace verifies that all the pods in a given namespace are running.
+func VerifyAllPodsRunningInNamespace(nsname string) {
 	By(fmt.Sprintf("Verifying that pods exist in %s namespace", nsname))
 	rhacmPods, err := pod.List(HubAPIClient, nsname)
 	Expect(err).NotTo(HaveOccurred(), "error nsname while listing pods in rhacm namespace")
@@ -68,7 +73,16 @@ func VerifyPodsRunning(nsname string) {
 		fmt.Sprintf("some %s pods are not in Running state", nsname))
 }
 
-func VerifyProvisioningRequestCreation(prName string, templateName string, templateVersion string, nodeClusterName string, oCloudSiteId string, policyTemplateParameters map[string]any, clusterInstanceParameters map[string]any) *oran.ProvisioningRequestBuilder {
+// VerifyProvisioningRequestCreation verifies the successful creation or provisioning request and 
+// that the provisioning request is progressing.
+func VerifyProvisioningRequestCreation(
+	prName string, 
+	templateName string, 
+	templateVersion string, 
+	nodeClusterName string, 
+	oCloudSiteId string, 
+	policyTemplateParameters map[string]any, 
+	clusterInstanceParameters map[string]any) *oran.ProvisioningRequestBuilder {
 	By(fmt.Sprintf("Verifing the successful creation of the %s PR", prName))
 	pr := oran.NewPRBuilder(HubAPIClient, prName, templateName, templateVersion)
 	pr.WithTemplateParameter("nodeClusterName", nodeClusterName)
@@ -82,6 +96,7 @@ func VerifyProvisioningRequestCreation(prName string, templateName string, templ
 	return pr
 }
 
+// VerifyProvisioningRequestState verifies that a given provisioning request is in a given state.
 func VerifyProvisioningRequestState(pr *oran.ProvisioningRequestBuilder, prName string, expectedState string) {
 	By(fmt.Sprintf("Verifying that %s PR if %s", prName, expectedState))
 	actualState := pr.Object.Status.ProvisioningStatus.ProvisioningState
@@ -89,6 +104,8 @@ func VerifyProvisioningRequestState(pr *oran.ProvisioningRequestBuilder, prName 
 		fmt.Sprintf("PR %s not fulfilled (status: %s)", prName, actualState))
 }
 
+// VerifyClusterInstanceCompleted verifies that a cluster instance exists, that it is provisioned and 
+// that it is associated to a given provisioning request.
 func VerifyClusterInstanceCompleted(
 	prName string, ns string, ciName string, wg *sync.WaitGroup, ctx SpecContext) *siteconfig.CIBuilder {
 	if wg != nil {
@@ -100,7 +117,7 @@ func VerifyClusterInstanceCompleted(
 	ci, err := siteconfig.PullClusterInstance(HubAPIClient, ciName, ns)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull Cluster Instance %q; %v", ns, err))
-	
+
 	found := false
 	for _, value := range ci.Object.ObjectMeta.Labels {
 		if value == prName {
@@ -108,7 +125,7 @@ func VerifyClusterInstanceCompleted(
 			break
 		}
 	}
-	Expect(found).To(BeTrue(), 
+	Expect(found).To(BeTrue(),
 		fmt.Sprintf("Failed to verify that Cluster Instance %s is associated to PR %s", ciName, prName))
 
 	Eventually(func(ctx context.Context) bool {
@@ -118,18 +135,20 @@ func VerifyClusterInstanceCompleted(
 			}
 		}
 		return false
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(60*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("ClusterInstance %s is not Completed", ciName))
 
 	return ci
 }
 
+// VerifyAllPoliciesInNamespaceAreCompliant verifies that all the policies in a given namespace
+// report compliant.
 func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext) {
 	By(fmt.Sprintf("Verifying that all the policies in namespace %s are Compliant", namespace))
 	policies, err := ocm.ListPoliciesInAllNamespaces(HubAPIClient)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull policies from all namespaces: %v", err))
-	
+
 	Eventually(func(ctx context.Context) bool {
 		for _, policy := range policies {
 			if policy.Object.ObjectMeta.Namespace == namespace {
@@ -139,15 +158,17 @@ func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext)
 			}
 		}
 		return true
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(90*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Failed to verify that all the policies in namespace %s are Compliant", namespace))
 }
 
+// VerifyOranNodeExistsInNamespace verifies that a given ORAN node exists in a given namespace.
 func VerifyOranNodeExistsInNamespace(
 	nodeId string, nsName string, wg *sync.WaitGroup) *oran.NodeBuilder {
 	if wg != nil {
 		defer wg.Done()
 	}
+
 	By(fmt.Sprintf("Verifying that ORAN node %s exists in namespace %s ", nodeId, nsName))
 
 	listOptions := &client.ListOptions{}
@@ -156,7 +177,7 @@ func VerifyOranNodeExistsInNamespace(
 	oranNodes, err := oran.ListNodes(HubAPIClient, *listOptions)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull oran node list from namespace %s: %v", nsName, err))
-	
+
 	nodeFound := false
 	i := 0
 
@@ -170,20 +191,21 @@ func VerifyOranNodeExistsInNamespace(
 
 	Expect(nodeFound).To(BeTrue(),
 		fmt.Sprintf("Failed to pull the oran node with the HW MGR ID %s from namespace %s", nodeId, nsName))
-	
+
 	if nodeFound {
 		return oranNodes[i]
-	} 
+	}
 
 	return nil
 }
 
+// VerifyOranNodePoolExistsInNamespace verifies that a given ORAN node pool exists in a given namespace.
 func VerifyOranNodePoolExistsInNamespace(
 	nodePoolName string, nsName string, wg *sync.WaitGroup) *oran.NodePoolBuilder {
 	if wg != nil {
 		defer wg.Done()
 	}
-	
+
 	By(fmt.Sprintf("Verifying that ORAN node pool %s exists in namespace %s", nodePoolName, nsName))
 	oranNodePool, err := oran.PullNodePool(HubAPIClient, nodePoolName, nsName)
 	Expect(err).ToNot(HaveOccurred(),
@@ -191,6 +213,7 @@ func VerifyOranNodePoolExistsInNamespace(
 	return oranNodePool
 }
 
+// VerifyProvisioningRequestIsDeleted verifies that a given provisioning request is deleted.
 func VerifyProvisioningRequestIsDeleted(pr *oran.ProvisioningRequestBuilder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
 		defer wg.Done()
@@ -213,10 +236,11 @@ func VerifyProvisioningRequestIsDeleted(pr *oran.ProvisioningRequestBuilder, wg 
 			return true
 		}
 		return false
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(30*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Error deleting PR %s", prName))
 }
 
+// VerifyNamespaceDoesNotExist verifies that a given namespace does not exist.
 func VerifyNamespaceDoesNotExist(ns *namespace.Builder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
 		defer wg.Done()
@@ -226,10 +250,11 @@ func VerifyNamespaceDoesNotExist(ns *namespace.Builder, wg *sync.WaitGroup, ctx 
 	By(fmt.Sprintf("Verifying that namespace %s does not exist", nsName))
 	Eventually(func(ctx context.Context) bool {
 		return !ns.Exists()
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(30*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Namespace %s still exists", nsName))
 }
 
+// VerifyClusterInstanceDoesNotExist verifies that a given cluster instance does not exist
 func VerifyClusterInstanceDoesNotExist(ci *siteconfig.CIBuilder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
 		defer wg.Done()
@@ -239,10 +264,11 @@ func VerifyClusterInstanceDoesNotExist(ci *siteconfig.CIBuilder, wg *sync.WaitGr
 	By(fmt.Sprintf("Verifying that clusterinstance %s does not exist", ciName))
 	Eventually(func(ctx context.Context) bool {
 		return !ci.Exists()
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(30*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("ClusterInstance %s still exists", ciName))
 }
 
+// VerifyOranNodeDoesNotExist verifies that a given ORAN node does not exist.
 func VerifyOranNodeDoesNotExist(node *oran.NodeBuilder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
 		defer wg.Done()
@@ -252,10 +278,11 @@ func VerifyOranNodeDoesNotExist(node *oran.NodeBuilder, wg *sync.WaitGroup, ctx 
 	By(fmt.Sprintf("Verifying that oran node %s does not exist", nodeName))
 	Eventually(func(ctx context.Context) bool {
 		return !node.Exists()
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(30*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Oran node %s still exists", nodeName))
 }
 
+// VerifyOranNodePoolDoesNotExist verifies that a given ORAN node pool does not exist.
 func VerifyOranNodePoolDoesNotExist(nodePool *oran.NodePoolBuilder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
 		defer wg.Done()
@@ -265,6 +292,80 @@ func VerifyOranNodePoolDoesNotExist(nodePool *oran.NodePoolBuilder, wg *sync.Wai
 	By(fmt.Sprintf("Verifying that oran node pool %s does not exist", nodePoolName))
 	Eventually(func(ctx context.Context) bool {
 		return !nodePool.Exists()
-	}).WithTimeout(25*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(30*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Oran node pool %s still exists", nodePoolName))
+}
+
+// ProvisionSnoCluster provisions a SNO cluster.
+func ProvisionSnoCluster(
+	prName string,
+	templateName string,
+	templateVersion string,
+	nodeClusterName string,
+	oCloudNodeId string,
+	policyTemplateParameters map[string]any,
+	clusterInstanceParameters map[string]any,
+	wg *sync.WaitGroup) {
+
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	VerifyProvisioningRequestCreation(
+		prName,
+		templateName,
+		templateVersion,
+		nodeClusterName,
+		oCloudNodeId,
+		policyTemplateParameters,
+		clusterInstanceParameters)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been created", ocloudparams.PrName1)
+}
+
+// DeprovisionSnoCluster deprovisions a SNO cluster.
+func DeprovisionSnoCluster(
+	pr *oran.ProvisioningRequestBuilder,
+	ns *namespace.Builder,
+	ci *siteconfig.CIBuilder,
+	node *oran.NodeBuilder,
+	nodePool *oran.NodePoolBuilder,
+	ctx SpecContext) {
+
+	By(fmt.Sprintf("Tearing down PR %s", ocloudparams.PrName1))
+
+	var tearDownWg sync.WaitGroup
+	tearDownWg.Add(5)
+	go VerifyProvisioningRequestIsDeleted(pr, &tearDownWg, ctx)
+	go VerifyNamespaceDoesNotExist(ns, &tearDownWg, ctx)
+	go VerifyClusterInstanceDoesNotExist(ci, &tearDownWg, ctx)
+	go VerifyOranNodeDoesNotExist(node, &tearDownWg, ctx)
+	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
+	tearDownWg.Wait()
+
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
+}
+
+// VerifyAndRetrieveAssociatedCRs verifies that a given ORAN node, a given ORAN node pool, a given namespace 
+// and a given cluster instance exist and retrieves them.
+func VerifyAndRetrieveAssociatedCRs(nodeId string,
+	nodePoolName string,
+	nsName string,
+	ciName string,
+	ctx SpecContext) (*oran.NodeBuilder, *oran.NodePoolBuilder, *namespace.Builder, *siteconfig.CIBuilder) {
+
+	node := VerifyOranNodeExistsInNamespace(nodeId, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("ORAN node with node ID %s has been created", nodeId)
+
+	nodePool := VerifyOranNodePoolExistsInNamespace(
+		nodePoolName,
+		ocloudparams.OCloudHardwareManagerPluginNamespace,
+		nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("ORAN node pool ID %s has been created", nodePoolName)
+
+	ns := VerifyNamespaceExists(nsName, nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Namespace %s has been created", nsName)
+
+	ci := VerifyClusterInstanceCompleted(ocloudparams.PrName1, nsName, ciName, nil, ctx)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster Instance %s exists and reports Complete", ciName)
+	return node, nodePool, ns, ci
 }

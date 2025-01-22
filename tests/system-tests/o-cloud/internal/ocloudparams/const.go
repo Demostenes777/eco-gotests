@@ -40,5 +40,4 @@ const (
 
 	// OCloudHardwareManagerSubscriptionName is the name of the O-Cloud hardware manager plugin operator subscription.
 	OCloudHardwareManagerPluginSubscriptionName = "oran-hwmgr-plugin-operator-subscription"
-
 )

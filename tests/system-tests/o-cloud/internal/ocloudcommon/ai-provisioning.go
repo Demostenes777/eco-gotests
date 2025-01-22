@@ -4,75 +4,133 @@ import (
 	"fmt"
 	"sync"
 
-	//"github.com/golang/glog"
+	"github.com/golang/glog"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudinittools"
 
 	"github.com/openshift-kni/eco-goinfra/pkg/oran"
+	. "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudinittools"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 )
 
+// VerifySuccessfulSnoProvisioning verifies the successful provisioning of a SNO cluster using
+// Assisted Installer
 func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
-	prName := "single-sno-ai-success"
-	templateName := "sno-ran-du"
-	templateVersion := "v4-18-0-ec3-1"
-	nodeClusterName := "sno02"
-	oCloudSiteId := "sno02"
-	policyTemplateParameters := map[string]any{}
-	clusterInstanceParameters := map[string]any{
-		"clusterName": "sno02",
-		"nodes": []map[string]any{
-			{
-				"hostName": "sno02.oran.telcoqe.eng.rdu2.dc.redhat.comf",
-			},
-		},
-	}
+	ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.OCloudSiteId1,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters1,
+		nil)
+	
+	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
 
-	pr := VerifyProvisioningRequestCreation(
-		prName, 
-		templateName, 
-		templateVersion, 
-		nodeClusterName, 
-		oCloudSiteId, 
-		policyTemplateParameters, 
-		clusterInstanceParameters)
-
-	nsName, ciName, nodePoolName, nodeId := nodeClusterName, nodeClusterName, nodeClusterName, nodeClusterName
-	node := VerifyOranNodeExistsInNamespace(nodeId, ocloudparams.OCloudHardwareManagerPluginNamespace, nil) 
-	nodePool := VerifyOranNodePoolExistsInNamespace(nodePoolName, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)  
-	ns := VerifyNamespaceExists(nsName, nil)
-	ci := VerifyClusterInstanceCompleted(prName, nsName, ciName, nil, ctx)
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
+	
+	nsName := ns.Object.Name
 	VerifyAllPoliciesInNamespaceAreCompliant(nsName, ctx)
-	VerifyProvisioningRequestState(pr, prName, "fulfilled")
+	glog.V(ocloudparams.OCloudLogLevel).Infof("All the policies in namespace %s are Complete", nsName)
 
-	By(fmt.Sprintf("Tearing down PR %s", prName))
+	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "fulfilled")
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", ocloudparams.PrName1)
 
-	var tearDownWg sync.WaitGroup
-	tearDownWg.Add(5)
-	go VerifyProvisioningRequestIsDeleted(pr, &tearDownWg, ctx)
-	go VerifyNamespaceDoesNotExist(ns, &tearDownWg, ctx)
-	go VerifyClusterInstanceDoesNotExist(ci, &tearDownWg, ctx)
-	go VerifyOranNodeDoesNotExist(node, &tearDownWg, ctx)
-	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
-	tearDownWg.Wait()
+	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
 }
 
-func VerifyFailedSnoProvisioning() {
-	Fail("Intentional failure for demonstration purposes C")
+// VerifyFailedSnoProvisioning verifies that the provisioning of a SNO cluster using
+// Assisted Installer fails
+func VerifyFailedSnoProvisioning(ctx SpecContext) {
+	ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion2,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.OCloudSiteId1,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters1,
+		nil)
+
+	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
+	
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
+
+	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "failed")
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has failed", ocloudparams.PrName1)
+
+	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
 }
 
-func VerifySimultaneousSnoProvisioningSameClusterTemplate() {
-	Fail("Intentional failure for demonstration purposes D")
+// VerifySimultaneousSnoProvisioningSameClusterTemplate verifies the successful provisioning of two SNO clusters 
+// simultaneously with the same cluster templates.
+func VerifySimultaneousSnoProvisioningSameClusterTemplate(ctx SpecContext) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.OCloudSiteId1,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters1,
+		&wg)
+	go ProvisionSnoCluster(
+		ocloudparams.PrName2,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion1,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.OCloudSiteId2,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters2,
+		&wg)
+	wg.Wait()
+
+	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
+
+	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2,
+		ctx)
+	
+	var wg2 sync.WaitGroup
+	wg2.Add(2)
+	go	VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
+	go	VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
+	wg2.Wait()
 }
 
+// VerifySimultaneousSnoDeprovisioningSameClusterTemplate verifies the successful deletion of 
+// two SNO clusters with the same cluster template.
 func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
-	prName1 := "multiple-sno-same-cluster-template-sno02"
+	prName1 := ocloudparams.PrName1
+	prName2 := ocloudparams.PrName2
+
 	pr1, err := oran.PullPR(HubAPIClient, prName1)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to get PR %s", prName1))
 	VerifyProvisioningRequestState(pr1, prName1, "fulfilled")
 
-	prName2 := "multiple-sno-same-cluster-template-sno03"
 	pr2, err := oran.PullPR(HubAPIClient, prName2)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to get PR %s", prName2))
 	VerifyProvisioningRequestState(pr2, prName2, "fulfilled")
@@ -83,27 +141,27 @@ func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
 	Expect(pr1TemplateVersion).To(Equal(pr2TemplateVersion),
 		fmt.Sprintf("PR %s and %s are not using the same cluster template", prName1, prName2))
 
-	nsName1, ciName1, oranNodePoolName1, nodeId1 := "sno02", "sno02", "sno02", "sno02" // This should be part of the config
-	nodePool1 := VerifyOranNodePoolExistsInNamespace(oranNodePoolName1, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
-	node1 := VerifyOranNodeExistsInNamespace(nodeId1, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
-	ciNs1 := VerifyNamespaceExists(nsName1, nil)
-	ci1 := VerifyClusterInstanceCompleted(prName1, nsName1, ciName1, nil, ctx)
-	VerifyAllPoliciesInNamespaceAreCompliant(nsName1, ctx)
+	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
 
-	nsName2, ciName2, oranNodePoolName2, nodeId2 := "sno03", "sno03", "sno03", "sno03" // This should be part of the config
-	node2 := VerifyOranNodeExistsInNamespace(nodeId2, ocloudparams.OCloudHardwareManagerPluginNamespace, nil) 
-	nodePool2 := VerifyOranNodePoolExistsInNamespace(oranNodePoolName2, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)  
-	ciNs2 := VerifyNamespaceExists(nsName2, nil)
-	ci2 := VerifyClusterInstanceCompleted(prName2, nsName2, ciName2, nil, ctx)
-	VerifyAllPoliciesInNamespaceAreCompliant(nsName2, ctx)
+	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2,
+		ctx)
 
 	var waitGroup sync.WaitGroup
 
 	waitGroup.Add(10)
 	go VerifyProvisioningRequestIsDeleted(pr1, &waitGroup, ctx)
 	go VerifyProvisioningRequestIsDeleted(pr2, &waitGroup, ctx)
-	go VerifyNamespaceDoesNotExist(ciNs1, &waitGroup, ctx)
-	go VerifyNamespaceDoesNotExist(ciNs2, &waitGroup, ctx)
+	go VerifyNamespaceDoesNotExist(ns1, &waitGroup, ctx)
+	go VerifyNamespaceDoesNotExist(ns2, &waitGroup, ctx)
 	go VerifyClusterInstanceDoesNotExist(ci1, &waitGroup, ctx)
 	go VerifyClusterInstanceDoesNotExist(ci2, &waitGroup, ctx)
 	go VerifyOranNodeDoesNotExist(node1, &waitGroup, ctx)
@@ -113,18 +171,62 @@ func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
 	waitGroup.Wait()
 }
 
-func VerifySimultaneousSnoProvisioningDifferentClusterTemplates() {
-	Fail("Intentional failure for demonstration purposes F")
+// VerifySimultaneousSnoProvisioningDifferentClusterTemplates verifies the successful provisioning of 
+// two SNO clusters simultaneously with different cluster templates.
+func VerifySimultaneousSnoProvisioningDifferentClusterTemplates(ctx SpecContext) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.OCloudSiteId1,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters1,
+		&wg)
+	go ProvisionSnoCluster(
+		ocloudparams.PrName2,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion3,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.OCloudSiteId2,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters2,
+		&wg)
+	wg.Wait()
+
+	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
+
+	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2,
+		ctx)
+	
+	var wg2 sync.WaitGroup
+	wg2.Add(2)
+	go	VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
+	go	VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
+	wg2.Wait()
 }
 
+// VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates verifies the successful deletion of 
+// two SNO clusters with different cluster templates.
 func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContext) {
-	Fail("Intentional failure for demonstration purposes G")
-	prName1 := "multiple-sno-different-cluster-templates-sno02"
+	prName1 := ocloudparams.PrName1
+	prName2 := ocloudparams.PrName2
+
 	pr1, err := oran.PullPR(HubAPIClient, prName1)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to get PR %s", prName1))
 	VerifyProvisioningRequestState(pr1, prName1, "fulfilled")
 
-	prName2 := "multiple-sno-different-cluster-templates-sno03"
 	pr2, err := oran.PullPR(HubAPIClient, prName2)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to get PR %s", prName2))
 	VerifyProvisioningRequestState(pr2, prName2, "fulfilled")
@@ -135,27 +237,27 @@ func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContex
 	Expect(pr1TemplateVersion).NotTo(Equal(pr2TemplateVersion),
 		fmt.Sprintf("PR %s and %s are using the same cluster template", prName1, prName2))
 
-	nsName1, ciName1, oranNodePoolName1, nodeId1 := "sno02", "sno02", "sno02", "sno02" // This should be part of the config
-	nodePool1 := VerifyOranNodePoolExistsInNamespace(oranNodePoolName1, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
-	node1 := VerifyOranNodeExistsInNamespace(nodeId1, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
-	ciNs1 := VerifyNamespaceExists(nsName1, nil)
-	ci1 := VerifyClusterInstanceCompleted(prName1, nsName1, ciName1, nil, ctx)
-	VerifyAllPoliciesInNamespaceAreCompliant(nsName1, ctx)
+	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1, 
+		ocloudparams.NodeClusterName1,
+		ctx)
 
-	nsName2, ciName2, oranNodePoolName2, nodeId2 := "sno03", "sno03", "sno03", "sno03" // This should be part of the config
-	node2 := VerifyOranNodeExistsInNamespace(nodeId2, ocloudparams.OCloudHardwareManagerPluginNamespace, nil) 
-	nodePool2 := VerifyOranNodePoolExistsInNamespace(oranNodePoolName2, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)  
-	ciNs2 := VerifyNamespaceExists(nsName2, nil)
-	ci2 := VerifyClusterInstanceCompleted(prName2, nsName2, ciName2, nil, ctx)
-	VerifyAllPoliciesInNamespaceAreCompliant(nsName2, ctx)
+	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRs(
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2, 
+		ocloudparams.NodeClusterName2,
+		ctx)
 
 	var waitGroup sync.WaitGroup
 
 	waitGroup.Add(10)
 	go VerifyProvisioningRequestIsDeleted(pr1, &waitGroup, ctx)
 	go VerifyProvisioningRequestIsDeleted(pr2, &waitGroup, ctx)
-	go VerifyNamespaceDoesNotExist(ciNs1, &waitGroup, ctx)
-	go VerifyNamespaceDoesNotExist(ciNs2, &waitGroup, ctx)
+	go VerifyNamespaceDoesNotExist(ns1, &waitGroup, ctx)
+	go VerifyNamespaceDoesNotExist(ns2, &waitGroup, ctx)
 	go VerifyClusterInstanceDoesNotExist(ci1, &waitGroup, ctx)
 	go VerifyClusterInstanceDoesNotExist(ci2, &waitGroup, ctx)
 	go VerifyOranNodeDoesNotExist(node1, &waitGroup, ctx)
@@ -164,3 +266,4 @@ func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContex
 	go VerifyOranNodePoolDoesNotExist(nodePool2, &waitGroup, ctx)
 	waitGroup.Wait()
 }
+
