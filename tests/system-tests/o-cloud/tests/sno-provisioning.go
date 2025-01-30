@@ -13,11 +13,17 @@ var _ = Describe(
 	ContinueOnFailure,
 	Label(ocloudparams.Label), func() {
 		Context("Configured hub cluster", Label("ocloud-ai-provisioning"), func() {
-			It("Verifies the successful provisioning of a single SNO cluster",
+			It("Verifies the successful provisioning of a single SNO cluster using Assisted Installer",
 				ocloudcommon.VerifySuccessfulSnoProvisioning)
 
-			It("Verifies the failed provisioning of a single SNO cluster",
+			It("Verifies the failed provisioning of a single SNO cluster using Assisted Installer",
 				ocloudcommon.VerifyFailedSnoProvisioning)
+			
+			It("Verifies the successful provisioning of a single SNO cluster using Image Based Installer",
+				ocloudcommon.VerifySuccessfulIbiSnoProvisioning)
+
+			It("Verifies the failed provisioning of a single SNO cluster using Image Based Installer",
+				ocloudcommon.VerifyFailedIbiSnoProvisioning)
 
 			It("Verifies the succesful E2E simultaneous provisioning of SNO clusters with the same cluster template",
 				ocloudcommon.VerifySimultaneousSnoProvisioningSameClusterTemplate)

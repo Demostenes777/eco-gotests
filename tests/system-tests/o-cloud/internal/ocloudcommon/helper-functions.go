@@ -22,6 +22,8 @@ import (
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/apiobjectshelper"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/csv"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // VerifyNamespaceExists verifies that a specific namespace exists.
@@ -73,15 +75,15 @@ func VerifyAllPodsRunningInNamespace(nsname string) {
 		fmt.Sprintf("some %s pods are not in Running state", nsname))
 }
 
-// VerifyProvisioningRequestCreation verifies the successful creation or provisioning request and 
+// VerifyProvisioningRequestCreation verifies the successful creation or provisioning request and
 // that the provisioning request is progressing.
 func VerifyProvisioningRequestCreation(
-	prName string, 
-	templateName string, 
-	templateVersion string, 
-	nodeClusterName string, 
-	oCloudSiteId string, 
-	policyTemplateParameters map[string]any, 
+	prName string,
+	templateName string,
+	templateVersion string,
+	nodeClusterName string,
+	oCloudSiteId string,
+	policyTemplateParameters map[string]any,
 	clusterInstanceParameters map[string]any) *oran.ProvisioningRequestBuilder {
 	By(fmt.Sprintf("Verifing the successful creation of the %s PR", prName))
 	pr := oran.NewPRBuilder(HubAPIClient, prName, templateName, templateVersion)
@@ -92,19 +94,28 @@ func VerifyProvisioningRequestCreation(
 	pr, err := pr.Create()
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("Failed to create PR %s", prName))
 
-	VerifyProvisioningRequestState(pr, prName, "progressing")
+	condition := metav1.Condition{
+		Type:   "ClusterProvisioned",
+		Reason: "InProgress",
+	}
+	pr.WaitForCondition(condition, time.Minute*5)
+
 	return pr
 }
 
 // VerifyProvisioningRequestState verifies that a given provisioning request is in a given state.
-func VerifyProvisioningRequestState(pr *oran.ProvisioningRequestBuilder, prName string, expectedState string) {
-	By(fmt.Sprintf("Verifying that %s PR if %s", prName, expectedState))
+func VerifyProvisioningRequestState(
+	pr *oran.ProvisioningRequestBuilder,
+	prName string,
+	expectedState string) {
+	By(fmt.Sprintf("Verifying that %s PR is %s", prName, expectedState))
 	actualState := pr.Object.Status.ProvisioningStatus.ProvisioningState
+
 	Expect(fmt.Sprintf("%v", actualState)).To(Equal(expectedState),
 		fmt.Sprintf("PR %s not fulfilled (status: %s)", prName, actualState))
 }
 
-// VerifyClusterInstanceCompleted verifies that a cluster instance exists, that it is provisioned and 
+// VerifyClusterInstanceCompleted verifies that a cluster instance exists, that it is provisioned and
 // that it is associated to a given provisioning request.
 func VerifyClusterInstanceCompleted(
 	prName string, ns string, ciName string, wg *sync.WaitGroup, ctx SpecContext) *siteconfig.CIBuilder {
@@ -345,9 +356,34 @@ func DeprovisionSnoCluster(
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
 }
 
-// VerifyAndRetrieveAssociatedCRs verifies that a given ORAN node, a given ORAN node pool, a given namespace 
+// VerifyAndRetrieveAssociatedCRsForAssistedInstaller verifies that a given ORAN node, a given ORAN node pool, a given namespace
 // and a given cluster instance exist and retrieves them.
-func VerifyAndRetrieveAssociatedCRs(nodeId string,
+func VerifyAndRetrieveAssociatedCRsForAssistedInstaller(nodeId string,
+	nodePoolName string,
+	nsName string,
+	ciName string,
+	ctx SpecContext) (*oran.NodeBuilder, *oran.NodePoolBuilder, *namespace.Builder, *siteconfig.CIBuilder) {
+
+	node := VerifyOranNodeExistsInNamespace(nodeId, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("ORAN node with node ID %s has been created", nodeId)
+
+	nodePool := VerifyOranNodePoolExistsInNamespace(
+		nodePoolName,
+		ocloudparams.OCloudHardwareManagerPluginNamespace,
+		nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("ORAN node pool ID %s has been created", nodePoolName)
+
+	ns := VerifyNamespaceExists(nsName, nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Namespace %s has been created", nsName)
+
+	ci := VerifyClusterInstanceCompleted(ocloudparams.PrName1, nsName, ciName, nil, ctx)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster Instance %s exists and reports Complete", ciName)
+	return node, nodePool, ns, ci
+}
+
+// VerifyAndRetrieveAssociatedCRsForIBI verifies that a given ORAN node, a given ORAN node pool, a given namespace
+// and a given cluster instance exist and retrieves them.
+func VerifyAndRetrieveAssociatedCRsForIBI(nodeId string,
 	nodePoolName string,
 	nsName string,
 	ciName string,

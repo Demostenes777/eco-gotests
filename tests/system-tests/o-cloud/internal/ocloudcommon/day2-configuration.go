@@ -10,6 +10,10 @@ import (
 
 func SuccessfulOperatorUpgrade() {
 	Fail("Intentional failure for demonstration purposes J")
+	// Deploy SNO 02 and SNO 03 
+	// Once they are completed export their kufeconfig files to environment variables
+	// Set SNO 02 and SNO 03 api client kubeconfig path
+	// Verify CSV version
 }
 
 func FailedOperatorUpgrade() {

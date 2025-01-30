@@ -16,6 +16,7 @@ import (
 // VerifySuccessfulSnoProvisioning verifies the successful provisioning of a SNO cluster using
 // Assisted Installer
 func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	ProvisionSnoCluster(
 		ocloudparams.PrName1,
 		ocloudparams.TemplateName,
@@ -25,17 +26,17 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 		ocloudparams.PolicyTemplateParameters,
 		ocloudparams.ClusterInstanceParameters1,
 		nil)
-	
+
 	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
 
-	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
-	
+
 	nsName := ns.Object.Name
 	VerifyAllPoliciesInNamespaceAreCompliant(nsName, ctx)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("All the policies in namespace %s are Complete", nsName)
@@ -49,6 +50,7 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 // VerifyFailedSnoProvisioning verifies that the provisioning of a SNO cluster using
 // Assisted Installer fails
 func VerifyFailedSnoProvisioning(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	ProvisionSnoCluster(
 		ocloudparams.PrName1,
 		ocloudparams.TemplateName,
@@ -61,11 +63,11 @@ func VerifyFailedSnoProvisioning(ctx SpecContext) {
 
 	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
-	
-	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
 
@@ -75,9 +77,69 @@ func VerifyFailedSnoProvisioning(ctx SpecContext) {
 	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
 }
 
-// VerifySimultaneousSnoProvisioningSameClusterTemplate verifies the successful provisioning of two SNO clusters 
+func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
+	ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion4,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.OCloudSiteId2,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters2,
+		nil)
+
+	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
+
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForIBI(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ctx)
+
+	nsName := ns.Object.Name
+	VerifyAllPoliciesInNamespaceAreCompliant(nsName, ctx)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("All the policies in namespace %s are Complete", nsName)
+
+	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "fulfilled")
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", ocloudparams.PrName1)
+
+	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+}
+
+func VerifyFailedIbiSnoProvisioning(ctx SpecContext) {
+	ProvisionSnoCluster(
+		ocloudparams.PrName1,
+		ocloudparams.TemplateName,
+		ocloudparams.TemplateVersion5,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.OCloudSiteId2,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters2,
+		nil)
+
+	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
+
+	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForIBI(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ctx)
+
+	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "failed")
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has failed", ocloudparams.PrName1)
+
+	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+}
+
+// VerifySimultaneousSnoProvisioningSameClusterTemplate verifies the successful provisioning of two SNO clusters
 // simultaneously with the same cluster templates.
 func VerifySimultaneousSnoProvisioningSameClusterTemplate(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go ProvisionSnoCluster(
@@ -100,30 +162,31 @@ func VerifySimultaneousSnoProvisioningSameClusterTemplate(ctx SpecContext) {
 		&wg)
 	wg.Wait()
 
-	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
 
-	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
+	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
 		ctx)
-	
+
 	var wg2 sync.WaitGroup
 	wg2.Add(2)
-	go	VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
-	go	VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
+	go VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
+	go VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
 	wg2.Wait()
 }
 
-// VerifySimultaneousSnoDeprovisioningSameClusterTemplate verifies the successful deletion of 
+// VerifySimultaneousSnoDeprovisioningSameClusterTemplate verifies the successful deletion of
 // two SNO clusters with the same cluster template.
 func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	prName1 := ocloudparams.PrName1
 	prName2 := ocloudparams.PrName2
 
@@ -141,17 +204,17 @@ func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
 	Expect(pr1TemplateVersion).To(Equal(pr2TemplateVersion),
 		fmt.Sprintf("PR %s and %s are not using the same cluster template", prName1, prName2))
 
-	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
 
-	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
+	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
 		ctx)
 
@@ -171,9 +234,10 @@ func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
 	waitGroup.Wait()
 }
 
-// VerifySimultaneousSnoProvisioningDifferentClusterTemplates verifies the successful provisioning of 
+// VerifySimultaneousSnoProvisioningDifferentClusterTemplates verifies the successful provisioning of
 // two SNO clusters simultaneously with different cluster templates.
 func VerifySimultaneousSnoProvisioningDifferentClusterTemplates(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go ProvisionSnoCluster(
@@ -196,30 +260,31 @@ func VerifySimultaneousSnoProvisioningDifferentClusterTemplates(ctx SpecContext)
 		&wg)
 	wg.Wait()
 
-	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+	_, _, ns1, _ := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
 
-	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
+	_, _, ns2, _ := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
 		ctx)
-	
+
 	var wg2 sync.WaitGroup
 	wg2.Add(2)
-	go	VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
-	go	VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
+	go VerifyAllPoliciesInNamespaceAreCompliant(ns1.Object.Name, ctx)
+	go VerifyAllPoliciesInNamespaceAreCompliant(ns2.Object.Name, ctx)
 	wg2.Wait()
 }
 
-// VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates verifies the successful deletion of 
+// VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates verifies the successful deletion of
 // two SNO clusters with different cluster templates.
 func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContext) {
+	Fail("Intentional failure for demonstration purposes I")
 	prName1 := ocloudparams.PrName1
 	prName2 := ocloudparams.PrName2
 
@@ -237,17 +302,17 @@ func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContex
 	Expect(pr1TemplateVersion).NotTo(Equal(pr2TemplateVersion),
 		fmt.Sprintf("PR %s and %s are using the same cluster template", prName1, prName2))
 
-	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
-		ocloudparams.NodeClusterName1, 
+	node1, nodePool1, ns1, ci1 := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
+		ocloudparams.NodeClusterName1,
 		ocloudparams.NodeClusterName1,
 		ctx)
 
-	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRs(
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
-		ocloudparams.NodeClusterName2, 
+	node2, nodePool2, ns2, ci2 := VerifyAndRetrieveAssociatedCRsForAssistedInstaller(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
 		ctx)
 
@@ -266,4 +331,3 @@ func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContex
 	go VerifyOranNodePoolDoesNotExist(nodePool2, &waitGroup, ctx)
 	waitGroup.Wait()
 }
-

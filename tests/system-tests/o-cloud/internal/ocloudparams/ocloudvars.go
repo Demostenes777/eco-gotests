@@ -43,15 +43,23 @@ var (
 	// PrName2 is the name of the second provisioning request
 	PrName2 = "provisioning-request-2"
 	
-	// TemplateVersion1 defines the version of the referenced ClusterTemplate used for the successful SNO provisioning
+	// TemplateVersion1 defines the version of the referenced ClusterTemplate used for the successful SNO provisioning using AI
 	TemplateVersion1 = "v4-18-0-ec3-1"
 
-	// TemplateVersion2 defines the version of the referenced ClusterTemplate used for the failing SNO provisioning
+	// TemplateVersion2 defines the version of the referenced ClusterTemplate used for the failing SNO provisioning using AI
 	TemplateVersion2 = "v4-18-0-ec3-2"
 
 	//nolint:lll
 	// TemplateVersion3 defines the version of the referenced ClusterTemplate used for the multicluster provisioning with different templates
 	TemplateVersion3 = "v4-18-0-ec3-3"
+
+	//nolint:lll
+	// TemplateVersion4 defines the version of the referenced ClusterTemplate used for the successful SNO provisioning using IBI
+	TemplateVersion4 = "v4-18-0-ec3-4"
+
+	//nolint:lll
+	// TemplateVersion5 defines the version of the referenced ClusterTemplate used for the failing SNO provisioning using IBI
+	TemplateVersion5 = "v4-18-0-ec3-5"
 
 	// NodeClusterName1 is the name of the first ORAN Node Cluster
 	NodeClusterName1 = "sno02"
