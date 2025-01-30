@@ -18,10 +18,13 @@ import (
 	"github.com/openshift-kni/eco-goinfra/pkg/oran"
 	"github.com/openshift-kni/eco-goinfra/pkg/pod"
 	"github.com/openshift-kni/eco-goinfra/pkg/siteconfig"
+	"github.com/openshift-kni/eco-goinfra/pkg/bmh"
+	"github.com/openshift-kni/eco-goinfra/pkg/ibi"
 
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/apiobjectshelper"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/csv"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	bmhv1alpha1 "github.com/metal3-io/baremetal-operator/apis/metal3.io/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -152,6 +155,29 @@ func VerifyClusterInstanceCompleted(
 	return ci
 }
 
+// VerifyImageClusterInstallSucceeded verifies that a cluster instance exists, that it is provisioned and
+// that it is associated to a given provisioning request.
+func VerifyImageClusterInstallSucceeded(
+	nodeId string, ns string, wg *sync.WaitGroup, ctx SpecContext) *ibi.ImageClusterInstallBuilder {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	By(fmt.Sprintf("Verifying that Image Cluster Install %s in namespace %s has succeeded", nodeId, ns))
+
+	ici, err := ibi.PullImageClusterInstall(HubAPIClient, nodeId, ns)
+	Expect(err).ToNot(HaveOccurred(),
+		fmt.Sprintf("Failed to pull Image Cluster install %s from namespace %s; %v", nodeId, ns, err))
+	
+	Eventually(func(ctx context.Context) bool {
+		condition, _ := ici.GetCompletedCondition()
+		return condition.Status == "True"
+	}).WithTimeout(60*time.Minute).WithPolling(20*time.Second).WithContext(ctx).Should(BeTrue(),
+		fmt.Sprintf("Image Cluster Install %s is not Completed", nodeId))
+
+	return ici
+}
+
 // VerifyAllPoliciesInNamespaceAreCompliant verifies that all the policies in a given namespace
 // report compliant.
 func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext) {
@@ -222,6 +248,25 @@ func VerifyOranNodePoolExistsInNamespace(
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull oran node pool %s from namespace %s: %v", nodePoolName, nsName, err))
 	return oranNodePool
+}
+
+// VerifyBmhExternallyProvisioned verifies that a given ORAN node pool exists in a given namespace.
+func VerifyBmhExternallyProvisioned(
+	bmhName string, nsName string, ctx SpecContext, wg *sync.WaitGroup) *bmh.BmhBuilder {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	By(fmt.Sprintf("Verifying that BMH %s exists in namespace %s", bmhName, nsName))
+	bmh, err := bmh.Pull(HubAPIClient, bmhName, nsName)
+	Expect(err).ToNot(HaveOccurred(),
+		fmt.Sprintf("Failed to pull BMH %s from namespace %s: %v", bmhName, nsName, err))
+	
+	err = bmh.WaitUntilInStatus(bmhv1alpha1.StateExternallyProvisioned, 10*time.Minute)
+	Expect(err).ToNot(HaveOccurred(),
+		fmt.Sprintf("Failed to verify that BMH %s is externally provisioned", bmhName))
+
+	return bmh
 }
 
 // VerifyProvisioningRequestIsDeleted verifies that a given provisioning request is deleted.
@@ -334,7 +379,7 @@ func ProvisionSnoCluster(
 }
 
 // DeprovisionSnoCluster deprovisions a SNO cluster.
-func DeprovisionSnoCluster(
+func DeprovisionAiSnoCluster(
 	pr *oran.ProvisioningRequestBuilder,
 	ns *namespace.Builder,
 	ci *siteconfig.CIBuilder,
@@ -351,6 +396,31 @@ func DeprovisionSnoCluster(
 	go VerifyClusterInstanceDoesNotExist(ci, &tearDownWg, ctx)
 	go VerifyOranNodeDoesNotExist(node, &tearDownWg, ctx)
 	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
+	tearDownWg.Wait()
+
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
+}
+
+// DeprovisionSnoCluster deprovisions a SNO cluster.
+func DeprovisionIbiSnoCluster(
+	pr *oran.ProvisioningRequestBuilder,
+	ns *namespace.Builder,
+	node *oran.NodeBuilder,
+	nodePool *oran.NodePoolBuilder,
+	bmh *bmh.BmhBuilder,
+	ici *ibi.ImageClusterInstallBuilder,
+	ctx SpecContext) {
+
+	By(fmt.Sprintf("Tearing down PR %s", ocloudparams.PrName1))
+
+	var tearDownWg sync.WaitGroup
+	tearDownWg.Add(5)
+	go VerifyProvisioningRequestIsDeleted(pr, &tearDownWg, ctx)
+	go VerifyNamespaceDoesNotExist(ns, &tearDownWg, ctx)
+	go VerifyOranNodeDoesNotExist(node, &tearDownWg, ctx)
+	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
+	go VerifyBmhDoesNotExist(bmh, &tearDownWg, ctx)
+	go VerifyImageClusterInstallDoesNotExist(ici, &tearDownWg, ctx)
 	tearDownWg.Wait()
 
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
@@ -386,8 +456,14 @@ func VerifyAndRetrieveAssociatedCRsForAssistedInstaller(nodeId string,
 func VerifyAndRetrieveAssociatedCRsForIBI(nodeId string,
 	nodePoolName string,
 	nsName string,
-	ciName string,
-	ctx SpecContext) (*oran.NodeBuilder, *oran.NodePoolBuilder, *namespace.Builder, *siteconfig.CIBuilder) {
+	hostName string,
+	ctx SpecContext) (*oran.NodeBuilder, *oran.NodePoolBuilder, *namespace.Builder, *bmh.BmhBuilder, *ibi.ImageClusterInstallBuilder) {
+
+	bmh := VerifyBmhExternallyProvisioned(hostName, nsName, ctx, nil)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("BMH %s is externally provisioned", hostName)
+
+	ici := VerifyImageClusterInstallSucceeded(nodeId, nsName, nil, ctx)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster installation %s has succeeded ", nodeId)
 
 	node := VerifyOranNodeExistsInNamespace(nodeId, ocloudparams.OCloudHardwareManagerPluginNamespace, nil)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("ORAN node with node ID %s has been created", nodeId)
@@ -401,7 +477,5 @@ func VerifyAndRetrieveAssociatedCRsForIBI(nodeId string,
 	ns := VerifyNamespaceExists(nsName, nil)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Namespace %s has been created", nsName)
 
-	ci := VerifyClusterInstanceCompleted(ocloudparams.PrName1, nsName, ciName, nil, ctx)
-	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster Instance %s exists and reports Complete", ciName)
-	return node, nodePool, ns, ci
+	return node, nodePool, ns, bmh, ici
 }

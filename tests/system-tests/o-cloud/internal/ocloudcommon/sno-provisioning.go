@@ -44,7 +44,7 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "fulfilled")
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", ocloudparams.PrName1)
 
-	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+	DeprovisionAiSnoCluster(pr, ns, ci, node, nodePool, ctx)
 }
 
 // VerifyFailedSnoProvisioning verifies that the provisioning of a SNO cluster using
@@ -74,11 +74,17 @@ func VerifyFailedSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "failed")
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has failed", ocloudparams.PrName1)
 
-	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+	DeprovisionAiSnoCluster(pr, ns, ci, node, nodePool, ctx)
 }
 
 func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 	Fail("Intentional failure for demonstration purposes I")
+
+	// todo - verify that /opt/cached_disconnected_images/rhcos-ibi.iso file exists
+	// todo - check that sno03 is configured to boot from disk
+	// todo - boot sno03 from disk
+	// todo - verify that the installation is successfull
+
 	ProvisionSnoCluster(
 		ocloudparams.PrName1,
 		ocloudparams.TemplateName,
@@ -92,11 +98,11 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
 
-	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForIBI(
+	node, nodePool, ns, bmh, ici := VerifyAndRetrieveAssociatedCRsForIBI(
 		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
 		ocloudparams.NodeClusterName2,
-		ocloudparams.NodeClusterName2,
+		ocloudparams.HostName2,
 		ctx)
 
 	nsName := ns.Object.Name
@@ -106,34 +112,34 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "fulfilled")
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", ocloudparams.PrName1)
 
-	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+	DeprovisionIbiSnoCluster(pr, ns, node, nodePool, bmh, ici, ctx)
 }
 
 func VerifyFailedIbiSnoProvisioning(ctx SpecContext) {
-	ProvisionSnoCluster(
-		ocloudparams.PrName1,
-		ocloudparams.TemplateName,
-		ocloudparams.TemplateVersion5,
-		ocloudparams.NodeClusterName2,
-		ocloudparams.OCloudSiteId2,
-		ocloudparams.PolicyTemplateParameters,
-		ocloudparams.ClusterInstanceParameters2,
-		nil)
+	// ProvisionSnoCluster(
+	//	ocloudparams.PrName1,
+//		ocloudparams.TemplateName,
+		//ocloudparams.TemplateVersion5,
+		//ocloudparams.NodeClusterName2,
+		//ocloudparams.OCloudSiteId2,
+		//ocloudparams.PolicyTemplateParameters,
+		//ocloudparams.ClusterInstanceParameters2,
+		//nil)
 
 	pr, err := oran.PullPR(HubAPIClient, ocloudparams.PrName1)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Failed to retrieve PR %s", ocloudparams.PrName1))
 
-	node, nodePool, ns, ci := VerifyAndRetrieveAssociatedCRsForIBI(
-		ocloudparams.NodeClusterName1,
-		ocloudparams.NodeClusterName1,
-		ocloudparams.NodeClusterName1,
-		ocloudparams.NodeClusterName1,
+	node, nodePool, ns, bmh, ici := VerifyAndRetrieveAssociatedCRsForIBI(
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.NodeClusterName2,
+		ocloudparams.HostName2,
 		ctx)
 
 	VerifyProvisioningRequestState(pr, ocloudparams.PrName1, "failed")
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has failed", ocloudparams.PrName1)
 
-	DeprovisionSnoCluster(pr, ns, ci, node, nodePool, ctx)
+	DeprovisionIbiSnoCluster(pr, ns, node, nodePool, bmh, ici, ctx)
 }
 
 // VerifySimultaneousSnoProvisioningSameClusterTemplate verifies the successful provisioning of two SNO clusters

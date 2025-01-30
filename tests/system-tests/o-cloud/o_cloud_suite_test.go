@@ -34,6 +34,7 @@ var _ = BeforeSuite(func() {
 	ocloudcommon.VerifySiteConfigOperator()
 	ocloudcommon.VerifyOranO2ImsOperator()
 	ocloudcommon.VerifyOranHardwareManagerPluginOperator()
+	// todo verify that LCA is installed
 })
 
 var _ = AfterSuite(func() {

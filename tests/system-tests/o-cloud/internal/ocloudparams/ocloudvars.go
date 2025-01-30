@@ -72,6 +72,9 @@ var (
 
 	// OCloudSiteId2 is the ID of the of the second ORAN O-Cloud Site
 	OCloudSiteId2 = "sno03"
+
+	// OCloudSiteId2 is the ID of the of the second ORAN O-Cloud Site
+	HostName2 = "sno03.oran.telcoqe.eng.rdu2.dc.redhat.com"
 	
 	// ClusterInstanceParameters1 is the map with the cluster instance parameters for the first cluster
 	ClusterInstanceParameters1 = map[string]any{
