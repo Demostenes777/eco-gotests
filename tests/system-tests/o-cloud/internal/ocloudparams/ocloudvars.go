@@ -37,11 +37,35 @@ var (
 
 	PolicyTemplateParameters = map[string]any{}
 
-	// PrName1 is the name of the first provisioning request
-	PrName1 = "provisioning-request-1"
+	// PrSingleSnoAiSuccess is the name of the first provisioning request
+	PrSingleSnoAiSuccess = "single-sno-ai-success"
 
-	// PrName2 is the name of the second provisioning request
-	PrName2 = "provisioning-request-2"
+	// PrSingleSnoAiFailure is the name of the first provisioning request
+	PrSingleSnoAiFailure = "single-sno-ai-failure"
+
+	// PrSingleSnoIbiSuccess is the name of the first provisioning request
+	PrSingleSnoIbiSuccess = "single-sno-ibi-success"
+
+	// PrSingleSnoIbiFailure is the name of the first provisioning request
+	PrSingleSnoIbiFailure = "single-sno-ibi-failure"
+
+	// PrMultipleSnoSameCTSno02 is the name of the second provisioning request
+	PrMultipleSnoSameCTSno02 = "multiple-sno-same-cluster-template-sno02"
+
+	// PrMultipleSnoSameCTSno03 is the name of the second provisioning request
+	PrMultipleSnoSameCTSno03 = "multiple-sno-same-cluster-template-sno03"
+
+	// PrMultipleSnoDifferentCTSno02 is the name of the second provisioning request
+	PrMultipleSnoDifferentCTSno02 = "multiple-sno-different-cluster-template-sno02"
+
+	// PrMultipleSnoDifferentCTSno03 is the name of the second provisioning request
+	PrMultipleSnoDifferentCTSno03 = "multiple-sno-different-cluster-template-sno03"
+
+	// PrMultipleDay2Sno02 is the name of the provisioning request for Day 2 operations in SNO 02
+	PrMultipleDay2Sno02 = "multiple-day2-sno02"
+
+	// PrMultipleDay2Sno03 is the name of the provisioning request for Day 2 operations in SNO 02
+	PrMultipleDay2Sno03 = "multiple-day2-sno03"
 	
 	// TemplateVersion1 defines the version of the referenced ClusterTemplate used for the successful SNO provisioning using AI
 	TemplateVersion1 = "v4-18-0-ec3-1"
@@ -60,6 +84,10 @@ var (
 	//nolint:lll
 	// TemplateVersion5 defines the version of the referenced ClusterTemplate used for the failing SNO provisioning using IBI
 	TemplateVersion5 = "v4-18-0-ec3-5"
+
+	//nolint:lll
+	// TemplateVersion6 defines the version of the referenced ClusterTemplate used for the Day 2 operations
+	TemplateVersion6 = "v4-18-0-ec3-6"
 
 	// NodeClusterName1 is the name of the first ORAN Node Cluster
 	NodeClusterName1 = "sno02"
@@ -120,4 +148,14 @@ var (
 			},
 		},
 	}
+
+	PTPVersionMajorOld uint64 = 4
+	PTPVersionMinorOld uint64 = 18
+	PTPVersionPatchOld uint64 = 0
+	PTPVersionPrereleaseOld uint64 = 202411190136
+
+	PTPVersionMajorNew uint64 = 4
+	PTPVersionMinorNew uint64 = 18
+	PTPVersionPatchNew uint64 = 0
+	PTPVersionPrereleaseNew uint64 = 202412042342
 )

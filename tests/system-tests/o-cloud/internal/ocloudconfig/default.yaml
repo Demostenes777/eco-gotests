@@ -1,2 +1,12 @@
 ---
 # System Tests O-Cloud default configurations.
+ibi_base_image_path: /opt/cached_disconnected_images/rhcos-ibi.iso
+oran_spoke1_bmc_username: ""
+oran_spoke1_bmc_password: ""
+oran_spoke1_bmc_host: ""
+oran_spoke1_bmc_timeout: "15s"
+
+oran_spoke2_bmc_username: ""
+oran_spoke2_bmc_password: ""
+oran_spoke2_bmc_host: ""
+oran_spoke2_bmc_timeout: "15s"

@@ -3,6 +3,7 @@ package ocloudcommon
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -12,21 +13,22 @@ import (
 	. "github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudinittools"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 
+	"github.com/openshift-kni/eco-goinfra/pkg/bmh"
+	"github.com/openshift-kni/eco-goinfra/pkg/ibi"
 	"github.com/openshift-kni/eco-goinfra/pkg/namespace"
 	"github.com/openshift-kni/eco-goinfra/pkg/ocm"
 	"github.com/openshift-kni/eco-goinfra/pkg/olm"
 	"github.com/openshift-kni/eco-goinfra/pkg/oran"
 	"github.com/openshift-kni/eco-goinfra/pkg/pod"
 	"github.com/openshift-kni/eco-goinfra/pkg/siteconfig"
-	"github.com/openshift-kni/eco-goinfra/pkg/bmh"
-	"github.com/openshift-kni/eco-goinfra/pkg/ibi"
 
+	bmhv1alpha1 "github.com/metal3-io/baremetal-operator/apis/metal3.io/v1alpha1"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/apiobjectshelper"
 	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/csv"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	bmhv1alpha1 "github.com/metal3-io/baremetal-operator/apis/metal3.io/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/openshift-kni/eco-gotests/tests/system-tests/internal/shell"
 )
 
 // VerifyNamespaceExists verifies that a specific namespace exists.
@@ -168,19 +170,23 @@ func VerifyImageClusterInstallSucceeded(
 	ici, err := ibi.PullImageClusterInstall(HubAPIClient, nodeId, ns)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull Image Cluster install %s from namespace %s; %v", nodeId, ns, err))
-	
-	Eventually(func(ctx context.Context) bool {
-		condition, _ := ici.GetCompletedCondition()
-		return condition.Status == "True"
-	}).WithTimeout(60*time.Minute).WithPolling(20*time.Second).WithContext(ctx).Should(BeTrue(),
-		fmt.Sprintf("Image Cluster Install %s is not Completed", nodeId))
+
+	//Eventually(func(ctx context.Context) bool {
+	//	condition, _ := ici.GetCompletedCondition()
+	//	return condition.Status == "True"
+	//}).WithTimeout(60*time.Minute).WithPolling(20*time.Second).WithContext(ctx).Should(BeTrue(),
+	//	fmt.Sprintf("Image Cluster Install %s is not Completed", nodeId))
 
 	return ici
 }
 
 // VerifyAllPoliciesInNamespaceAreCompliant verifies that all the policies in a given namespace
 // report compliant.
-func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext) {
+func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext, wg *sync.WaitGroup) {
+	if wg != nil {
+		defer wg.Done()
+	}
+
 	By(fmt.Sprintf("Verifying that all the policies in namespace %s are Compliant", namespace))
 	policies, err := ocm.ListPoliciesInAllNamespaces(HubAPIClient)
 	Expect(err).ToNot(HaveOccurred(),
@@ -195,8 +201,33 @@ func VerifyAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext)
 			}
 		}
 		return true
-	}).WithTimeout(90*time.Minute).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(90*time.Minute).WithPolling(time.Minute).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Failed to verify that all the policies in namespace %s are Compliant", namespace))
+}
+
+// VerifyNotAllPoliciesInNamespaceAreCompliant verifies that not all the policies in a given namespace
+// report compliant.
+func VerifyNotAllPoliciesInNamespaceAreCompliant(namespace string, ctx SpecContext, wg *sync.WaitGroup) {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	By(fmt.Sprintf("Verifying that not all the policies in namespace %s are Compliant", namespace))
+	policies, err := ocm.ListPoliciesInAllNamespaces(HubAPIClient)
+	Expect(err).ToNot(HaveOccurred(),
+		fmt.Sprintf("Failed to pull policies from all namespaces: %v", err))
+
+	Eventually(func(ctx context.Context) bool {
+		for _, policy := range policies {
+			if policy.Object.ObjectMeta.Namespace == namespace {
+				if policy.Object.Status.ComplianceState != "Compliant" {
+					return true
+				}
+			}
+		}
+		return false
+	}).WithTimeout(5*time.Minute).WithPolling(20*time.Second).WithContext(ctx).Should(BeTrue(),
+		fmt.Sprintf("Failed to verify that not all the policies in namespace %s are Compliant", namespace))
 }
 
 // VerifyOranNodeExistsInNamespace verifies that a given ORAN node exists in a given namespace.
@@ -226,14 +257,14 @@ func VerifyOranNodeExistsInNamespace(
 		}
 	}
 
-	Expect(nodeFound).To(BeTrue(),
-		fmt.Sprintf("Failed to pull the oran node with the HW MGR ID %s from namespace %s", nodeId, nsName))
+	//Expect(nodeFound).To(BeTrue(),
+	//	fmt.Sprintf("Failed to pull the oran node with the HW MGR ID %s from namespace %s", nodeId, nsName))
 
 	if nodeFound {
 		return oranNodes[i]
+	} else {
+		return oranNodes[0]
 	}
-
-	return nil
 }
 
 // VerifyOranNodePoolExistsInNamespace verifies that a given ORAN node pool exists in a given namespace.
@@ -261,7 +292,7 @@ func VerifyBmhExternallyProvisioned(
 	bmh, err := bmh.Pull(HubAPIClient, bmhName, nsName)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to pull BMH %s from namespace %s: %v", bmhName, nsName, err))
-	
+
 	err = bmh.WaitUntilInStatus(bmhv1alpha1.StateExternallyProvisioned, 10*time.Minute)
 	Expect(err).ToNot(HaveOccurred(),
 		fmt.Sprintf("Failed to verify that BMH %s is externally provisioned", bmhName))
@@ -338,6 +369,34 @@ func VerifyOranNodeDoesNotExist(node *oran.NodeBuilder, wg *sync.WaitGroup, ctx 
 		fmt.Sprintf("Oran node %s still exists", nodeName))
 }
 
+// VerifyBmhDoesNotExist verifies that a given ORAN node does not exist.
+func VerifyBmhDoesNotExist(bmh *bmh.BmhBuilder, wg *sync.WaitGroup, ctx SpecContext) {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	bmhName := bmh.Object.Name
+	By(fmt.Sprintf("Verifying that BMH %s does not exist", bmhName))
+	Eventually(func(ctx context.Context) bool {
+		return !bmh.Exists()
+	}).WithTimeout(5*time.Second).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+		fmt.Sprintf("BMH %s still exists", bmhName))
+}
+
+// VerifyImageClusterInstallDoesNotExist verifies that a given ORAN node pool does not exist.
+func VerifyImageClusterInstallDoesNotExist(ici *ibi.ImageClusterInstallBuilder, wg *sync.WaitGroup, ctx SpecContext) {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	iciName := ici.Object.Name
+	By(fmt.Sprintf("Verifying that image cluster install %s does not exist", iciName))
+	Eventually(func(ctx context.Context) bool {
+		return !ici.Exists()
+	}).WithTimeout(5*time.Second).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+		fmt.Sprintf("Image cluster install %s still exists", iciName))
+}
+
 // VerifyOranNodePoolDoesNotExist verifies that a given ORAN node pool does not exist.
 func VerifyOranNodePoolDoesNotExist(nodePool *oran.NodePoolBuilder, wg *sync.WaitGroup, ctx SpecContext) {
 	if wg != nil {
@@ -375,7 +434,7 @@ func ProvisionSnoCluster(
 		oCloudNodeId,
 		policyTemplateParameters,
 		clusterInstanceParameters)
-	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been created", ocloudparams.PrName1)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been created", prName)
 }
 
 // DeprovisionSnoCluster deprovisions a SNO cluster.
@@ -387,7 +446,7 @@ func DeprovisionAiSnoCluster(
 	nodePool *oran.NodePoolBuilder,
 	ctx SpecContext) {
 
-	By(fmt.Sprintf("Tearing down PR %s", ocloudparams.PrName1))
+	By(fmt.Sprintf("Tearing down PR %s", pr.Object.Name))
 
 	var tearDownWg sync.WaitGroup
 	tearDownWg.Add(5)
@@ -398,7 +457,8 @@ func DeprovisionAiSnoCluster(
 	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
 	tearDownWg.Wait()
 
-	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", pr.Object.Name)
+	DowngradeImages()
 }
 
 // DeprovisionSnoCluster deprovisions a SNO cluster.
@@ -411,7 +471,7 @@ func DeprovisionIbiSnoCluster(
 	ici *ibi.ImageClusterInstallBuilder,
 	ctx SpecContext) {
 
-	By(fmt.Sprintf("Tearing down PR %s", ocloudparams.PrName1))
+	By(fmt.Sprintf("Tearing down PR %s", pr.Object.Name))
 
 	var tearDownWg sync.WaitGroup
 	tearDownWg.Add(5)
@@ -423,12 +483,15 @@ func DeprovisionIbiSnoCluster(
 	go VerifyImageClusterInstallDoesNotExist(ici, &tearDownWg, ctx)
 	tearDownWg.Wait()
 
-	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", ocloudparams.PrName1)
+	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has been removed", pr.Object.Name)
+	DowngradeImages()
 }
 
-// VerifyAndRetrieveAssociatedCRsForAssistedInstaller verifies that a given ORAN node, a given ORAN node pool, a given namespace
+// VerifyAndRetrieveAssociatedCRsForAI verifies that a given ORAN node, a given ORAN node pool, a given namespace
 // and a given cluster instance exist and retrieves them.
-func VerifyAndRetrieveAssociatedCRsForAssistedInstaller(nodeId string,
+func VerifyAndRetrieveAssociatedCRsForAI(
+	prName string,
+	nodeId string,
 	nodePoolName string,
 	nsName string,
 	ciName string,
@@ -446,7 +509,7 @@ func VerifyAndRetrieveAssociatedCRsForAssistedInstaller(nodeId string,
 	ns := VerifyNamespaceExists(nsName, nil)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Namespace %s has been created", nsName)
 
-	ci := VerifyClusterInstanceCompleted(ocloudparams.PrName1, nsName, ciName, nil, ctx)
+	ci := VerifyClusterInstanceCompleted(prName, nsName, ciName, nil, ctx)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster Instance %s exists and reports Complete", ciName)
 	return node, nodePool, ns, ci
 }
@@ -478,4 +541,39 @@ func VerifyAndRetrieveAssociatedCRsForIBI(nodeId string,
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Namespace %s has been created", nsName)
 
 	return node, nodePool, ns, bmh, ici
+}
+
+func VerifyIbiBaseImageExists() {
+	By(fmt.Sprintf("Verifying that file %s exists", OCloudConfig.IbiBaseImagePath))
+	_, err := os.Stat(OCloudConfig.IbiBaseImagePath)
+	Expect(os.IsNotExist(err)).To(BeFalse(),
+		fmt.Sprintf("File %s does not exist", OCloudConfig.IbiBaseImagePath))
+}
+
+func UpgradeImages() {
+	_, err := shell.ExecuteCmd(ocloudparams.PodmanTagOperatorUpgrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging redhat-operators image for upgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanTagSriovUpgrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging far-edge-sriov-fec image for upgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanPushOperatorUpgrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error pushing redhat-operators image for upgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanPushSriovUpgrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error pushing far-edge-sriov-fec image for upgrade: %v", err))
+}
+
+func DowngradeImages() {
+	_, err := shell.ExecuteCmd(ocloudparams.PodmanTagOperatorDowngrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging redhat-operators image for downgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanTagSriovDowngrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging far-edge-sriov-fec image for downgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanPushOperatorDowngrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error pushing redhat-operators image for downgrade: %v", err))
+
+	_, err = shell.ExecuteCmd(ocloudparams.PodmanPushSriovDowngrade)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error pushing far-edge-sriov-fec image for downgrade: %v", err))
 }

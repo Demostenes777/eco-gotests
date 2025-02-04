@@ -40,4 +40,24 @@ const (
 
 	// OCloudHardwareManagerSubscriptionName is the name of the O-Cloud hardware manager plugin operator subscription.
 	OCloudHardwareManagerPluginSubscriptionName = "oran-hwmgr-plugin-operator-subscription"
+
+	// PtpNamespace is the namespace for the PTP operator.
+	PtpNamespace = "openshift-ptp"
+
+	// PtpOperatorSubscriptionName is the name of the PTP operator subscription.
+	PtpOperatorSubscriptionName = "ptp-operator-subscription"
+
+	//nolint:lll
+	PodmanTagOperatorUpgrade = "podman tag registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18-prerelease-ptp-operator registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18-day2"
+	PodmanTagSriovUpgrade = "podman tag registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18-new registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18-day2"
+	PodmanPushOperatorUpgrade = "podman push registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18-day2"
+	PodmanPushSriovUpgrade = "podman push registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18-day2"
+	PodmanTagOperatorDowngrade = "podman tag registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18 registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18-day2"
+	PodmanTagSriovDowngrade = "podman tag registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18 registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18-day2"
+	PodmanPushOperatorDowngrade = "podman push registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/redhat-operators:v4.18-day2"
+	PodmanPushSriovDowngrade = "podman push registry.hub01.oran.telcoqe.eng.rdu2.dc.redhat.com:5000/olm/far-edge-sriov-fec:v4.18-day2"
+
+	SnoKubeconfigCreate = "oc -n %s get secret %s-admin-kubeconfig -o json | jq -r .data.kubeconfig | base64 -d > tmp/%s/auth/kubeconfig"
+
+	
 )
