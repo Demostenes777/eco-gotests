@@ -17,6 +17,7 @@ import (
 // VerifySuccessfulSnoProvisioning verifies the successful provisioning of a SNO cluster using
 // Assisted Installer.
 func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	provisioningRequest := VerifyProvisionSnoCluster(
 		OCloudConfig.TemplateName,
 		OCloudConfig.TemplateVersionAISuccess,
@@ -40,6 +41,7 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 // VerifyFailedSnoProvisioning verifies that the provisioning of a SNO cluster using
 // Assisted Installer fails.
 func VerifyFailedSnoProvisioning(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	provisioningRequest := VerifyProvisionSnoCluster(
 		OCloudConfig.TemplateName,
 		OCloudConfig.TemplateVersionAIFailure,
@@ -59,6 +61,7 @@ func VerifyFailedSnoProvisioning(ctx SpecContext) {
 // VerifySimultaneousSnoProvisioningSameClusterTemplate verifies the successful provisioning of two SNO clusters
 // simultaneously with the same cluster templates.
 func VerifySimultaneousSnoProvisioningSameClusterTemplate(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	provisioningRequest1 := VerifyProvisionSnoCluster(
 		OCloudConfig.TemplateName,
 		OCloudConfig.TemplateVersionAISuccess,
@@ -97,6 +100,7 @@ func VerifySimultaneousSnoProvisioningSameClusterTemplate(ctx SpecContext) {
 // VerifySimultaneousSnoDeprovisioningSameClusterTemplate verifies the successful deletion of
 // two SNO clusters with the same cluster template.
 func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	prName1 := getProvisioningRequestName(OCloudConfig.ClusterName1)
 	prName2 := getProvisioningRequestName(OCloudConfig.ClusterName2)
 
@@ -141,6 +145,7 @@ func VerifySimultaneousSnoDeprovisioningSameClusterTemplate(ctx SpecContext) {
 // VerifySimultaneousSnoProvisioningDifferentClusterTemplates verifies the successful provisioning of
 // two SNO clusters simultaneously with different cluster templates.
 func VerifySimultaneousSnoProvisioningDifferentClusterTemplates(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	provisioningRequest1 := VerifyProvisionSnoCluster(
 		OCloudConfig.TemplateName,
 		OCloudConfig.TemplateVersionAISuccess,
@@ -177,6 +182,7 @@ func VerifySimultaneousSnoProvisioningDifferentClusterTemplates(ctx SpecContext)
 // VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates verifies the successful deletion of
 // two SNO clusters with different cluster templates.
 func VerifySimultaneousSnoDeprovisioningDifferentClusterTemplates(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	prName1 := getProvisioningRequestName(OCloudConfig.ClusterName1)
 	prName2 := getProvisioningRequestName(OCloudConfig.ClusterName2)
 
