@@ -30,6 +30,7 @@ import (
 //
 //nolint:funlen
 func VerifySuccessfulOperatorUpgrade(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	downgradeOperatorImages()
 
 	provisioningRequest1 := VerifyProvisionSnoCluster(
@@ -145,6 +146,7 @@ func VerifySuccessfulOperatorUpgrade(ctx SpecContext) {
 //
 //nolint:funlen
 func VerifyFailedOperatorUpgradeAllSnos(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	downgradeOperatorImages()
 
 	provisioningRequest1 := VerifyProvisionSnoCluster(
@@ -276,6 +278,7 @@ func VerifyFailedOperatorUpgradeAllSnos(ctx SpecContext) {
 //
 //nolint:funlen
 func VerifyFailedOperatorUpgradeSubsetSnos(ctx SpecContext) {
+	Fail("forced failure for testing purposes")
 	downgradeOperatorImages()
 
 	provisioningRequest1 := VerifyProvisionSnoCluster(
