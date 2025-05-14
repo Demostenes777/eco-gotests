@@ -54,6 +54,7 @@ type ImageBasedInstallConfigData struct {
 // VerifySuccessfulIbiSnoProvisioning verifies the successful provisioning of a SNO cluster using
 // the Image Based Installer.
 func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
+	Fail("test failed")
 	if OCloudConfig.GenerateSeedImage && !baseImageExists() {
 		generateBaseImage(ctx)
 	}
@@ -95,6 +96,7 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 // VerifyFailedIbiSnoProvisioning verifies the failed provisioning of a SNO cluster using
 // the Image Based Installer.
 func VerifyFailedIbiSnoProvisioning(ctx SpecContext) {
+	Fail("test failed")
 	if OCloudConfig.GenerateSeedImage && !baseImageExists() {
 		generateBaseImage(ctx)
 	}
