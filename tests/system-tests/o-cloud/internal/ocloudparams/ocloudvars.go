@@ -81,14 +81,8 @@ var (
 	// SkopeoRedhatOperatorsUpgrade command to create a tag for the redhat-operators upgrade.
 	SkopeoRedhatOperatorsUpgrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.18-new docker://%s/olm/redhat-operators:v4.18-day2"
 	//nolint:lll
-	// SkopeoSriovUpgrade command to create a tag for the SR-IOV FEC operator upgrade.
-	SkopeoSriovUpgrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/far-edge-sriov-fec:v4.18-new docker://%s/olm/far-edge-sriov-fec:v4.18-day2"
-	//nolint:lll
 	// SkopeoRedhatOperatorsDowngrade command to create a tag for the redhat-operators downgrade.
 	SkopeoRedhatOperatorsDowngrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.18-old docker://%s/olm/redhat-operators:v4.18-day2"
-	//nolint:lll
-	// SkopeoSriovDowngrade command to create a tag for the SR-IOV FEC operator downgrade.
-	SkopeoSriovDowngrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/far-edge-sriov-fec:v4.18 docker://%s/olm/far-edge-sriov-fec:v4.18-day2"
 	//nolint:lll
 	// SnoKubeconfigCreate command to get the SNO kubeconfig file.
 	SnoKubeconfigCreate = "oc -n %s get secret %s-admin-kubeconfig -o json | jq -r .data.kubeconfig | base64 -d > tmp/%s/auth/kubeconfig"
@@ -104,13 +98,13 @@ var (
 	// SpokeSSHUser ssh user of the spoke cluster.
 	SpokeSSHUser = "core"
 	// SpokeSSHPasskeyPath path to the ssh key of the spoke cluster.
-	SpokeSSHPasskeyPath = "/opt/id_rsa"
+	SpokeSSHPasskeyPath = "/home/kni/.ssh/id_rsa"
 	// SeedGeneratorName name of the seedgenerator CR.
 	SeedGeneratorName = "seedimage"
 	// RegistryCertPath path to the registry certificate.
-	RegistryCertPath = "/opt/registry.crt"
+	RegistryCertPath = "/opt/registry/certs/registry.crt"
 	// IbiConfigTemplate template for the image based installation configuration.
-	IbiConfigTemplate = "/opt/ibi-config.yaml.tmpl"
+	IbiConfigTemplate = "/home/kni/ztp-site-configs/config/ibi_config.yaml.tmpl"
 	// IbiConfigTemplateYaml path to the YAML file with the image based installation configuration.
 	IbiConfigTemplateYaml = "tmp/ibi-iso-workdir/image-based-installation-config.yaml"
 	// IbiBasedImageSourcePath path to the base image.
@@ -124,4 +118,8 @@ var (
 	PtpCPULimit = "1m"
 	// PtpMemoryLimit is cpu limit for the PTP container.
 	PtpMemoryLimit = "1Mi"
+
+	//nolint:lll
+	// RemoveDataImageFinalizers command to remove the finalizers from a dataimage
+	RemoveDataImageFinalizers = "oc patch dataimage %s -n %s --type='merge' -p '{\"metadata\":{\"finalizers\":[]}}' --grace-period=0 --force"
 )

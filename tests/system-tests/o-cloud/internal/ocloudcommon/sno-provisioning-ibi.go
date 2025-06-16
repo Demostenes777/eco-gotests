@@ -68,6 +68,8 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 		ctx,
 		time.Minute)
 
+	ejectMedia(OCloudConfig.Spoke2BMC, OCloudConfig.VirtualMediaID)
+
 	provisioningRequest := VerifyProvisionSnoCluster(
 		OCloudConfig.TemplateName,
 		OCloudConfig.TemplateVersionIBISuccess,
@@ -76,7 +78,7 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 		ocloudparams.PolicyTemplateParameters,
 		ocloudparams.ClusterInstanceParameters2)
 
-	node, nodePool, namespace, bareMetalHost, imageClusterInstall := verifyAndRetrieveAssociatedCRsForIBI(
+	node, nodePool, namespace, bareMetalHost, imageClusterInstall, dataImage := verifyAndRetrieveAssociatedCRsForIBI(
 		OCloudConfig.ClusterName2,
 		OCloudConfig.ClusterName2,
 		OCloudConfig.ClusterName2,
@@ -89,7 +91,8 @@ func VerifySuccessfulIbiSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestIsFulfilled(provisioningRequest)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", provisioningRequest.Object.Name)
 
-	deprovisionIbiSnoCluster(provisioningRequest, namespace, node, nodePool, bareMetalHost, imageClusterInstall, ctx)
+	deprovisionIbiSnoCluster(
+		provisioningRequest, namespace, node, nodePool, bareMetalHost, imageClusterInstall, dataImage, ctx)
 }
 
 // VerifyFailedIbiSnoProvisioning verifies the failed provisioning of a SNO cluster using
@@ -117,7 +120,7 @@ func VerifyFailedIbiSnoProvisioning(ctx SpecContext) {
 		ocloudparams.PolicyTemplateParameters,
 		ocloudparams.ClusterInstanceParameters2)
 
-	node, nodePool, namespace, bareMetalHost, imageClusterInstall := verifyAndRetrieveAssociatedCRsForIBI(
+	node, nodePool, namespace, bareMetalHost, imageClusterInstall, dataImage := verifyAndRetrieveAssociatedCRsForIBI(
 		OCloudConfig.ClusterName2,
 		OCloudConfig.ClusterName2,
 		OCloudConfig.ClusterName2,
@@ -127,7 +130,8 @@ func VerifyFailedIbiSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestTimeout(provisioningRequest)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s has timed out", provisioningRequest.Object.Name)
 
-	deprovisionIbiSnoCluster(provisioningRequest, namespace, node, nodePool, bareMetalHost, imageClusterInstall, ctx)
+	deprovisionIbiSnoCluster(
+		provisioningRequest, namespace, node, nodePool, bareMetalHost, imageClusterInstall, dataImage, ctx)
 }
 
 // installBaseImage boots a given spoke cluster from CD using the specified base image and virtual media ID,
@@ -164,6 +168,14 @@ func installBaseImage(
 		return false
 	}).WithTimeout(80*time.Minute).WithPolling(timeout).WithContext(ctx).Should(BeTrue(),
 		"Image based install did not completed")
+}
+
+// ejectMedia ejects the virtual media ID.
+func ejectMedia(spoke *bmc.BMC,	virtualMediaID string) {
+	By("Ejecting virtual media in target SNO")
+
+	err := spoke.EjectMedia(virtualMediaID)
+	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error ejecting virtual media %s: %v", virtualMediaID, err))
 }
 
 // generateBaseImage provisions a seed SNO cluster and generates a base image to be used with Image Based Installation.
@@ -211,6 +223,7 @@ func generateBaseImage(ctx SpecContext) {
 		err = cluster.DeleteAndWait(time.Minute * 10)
 		Expect(err).NotTo(HaveOccurred(),
 			fmt.Sprintf("Error deleting managed cluster %s", OCloudConfig.ClusterName1))
+		time.Sleep(30 * time.Second)
 	}
 
 	By("Creating a seedgen secret in the LCA namespace")
@@ -294,7 +307,7 @@ func verifyBareMetalHostDoesNotExist(bareMetalHost *bmh.BmhBuilder, waitGroup *s
 
 	Eventually(func(ctx context.Context) bool {
 		return !bareMetalHost.Exists()
-	}).WithTimeout(5*time.Second).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(20*time.Minute).WithPolling(30*time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("BMH %s still exists", bareMetalHost.Object.Name))
 }
 
@@ -310,8 +323,31 @@ func verifyImageClusterInstallDoesNotExist(
 	By(fmt.Sprintf("Verifying that image cluster install %s does not exist", iciName))
 	Eventually(func(ctx context.Context) bool {
 		return !imageClusterInstall.Exists()
-	}).WithTimeout(5*time.Second).WithPolling(time.Second).WithContext(ctx).Should(BeTrue(),
+	}).WithTimeout(10*time.Minute).WithPolling(30*time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Image cluster install %s still exists", iciName))
+}
+
+// verifyImageClusterInstallDoesNotExist verifies that a given ORAN node pool does not exist.
+func verifyDataImageDoesNotExist(
+	dataImage *bmh.DataImageBuilder, nsName string, waitGroup *sync.WaitGroup, ctx SpecContext) {
+	if waitGroup != nil {
+		defer waitGroup.Done()
+		defer GinkgoRecover()
+	}
+
+	dataImageName := dataImage.Object.Name
+	if len(dataImage.Object.Finalizers) > 0 {
+		cmd := fmt.Sprintf(ocloudparams.RemoveDataImageFinalizers, dataImageName, nsName)
+		_, err := shell.ExecuteCmd(cmd)
+		Expect(err).NotTo(HaveOccurred(), 
+			fmt.Sprintf("Error removing finalizers for dataimage %s in namespace %s: %v", dataImageName, nsName, err))
+	}
+
+	By(fmt.Sprintf("Verifying that data image %s does not exist", dataImageName))
+	Eventually(func(ctx context.Context) bool {
+		return !dataImage.Exists()
+	}).WithTimeout(10*time.Minute).WithPolling(10*time.Second).WithContext(ctx).Should(BeTrue(),
+		fmt.Sprintf("Data image %s still exists", dataImageName))
 }
 
 // deprovisionIbiSnoCluster deprovisions a SNO cluster that has been deployed using IBI.
@@ -322,12 +358,15 @@ func deprovisionIbiSnoCluster(
 	nodePool *oran.NodePoolBuilder,
 	bareMetalHost *bmh.BmhBuilder,
 	imageClusterInstall *ibi.ImageClusterInstallBuilder,
+	dataImage *bmh.DataImageBuilder,
 	ctx SpecContext) {
 	By(fmt.Sprintf("Tearing down PR %s", provisioningRequest.Object.Name))
 
+	nsName := namespace.Object.Name
+
 	var tearDownWg sync.WaitGroup
 
-	tearDownWg.Add(5)
+	tearDownWg.Add(6)
 
 	go VerifyProvisioningRequestIsDeleted(provisioningRequest, &tearDownWg, ctx)
 	go VerifyNamespaceDoesNotExist(namespace, &tearDownWg, ctx)
@@ -335,6 +374,7 @@ func deprovisionIbiSnoCluster(
 	go VerifyOranNodePoolDoesNotExist(nodePool, &tearDownWg, ctx)
 	go verifyBareMetalHostDoesNotExist(bareMetalHost, &tearDownWg, ctx)
 	go verifyImageClusterInstallDoesNotExist(imageClusterInstall, &tearDownWg, ctx)
+	go verifyDataImageDoesNotExist(dataImage, nsName, &tearDownWg, ctx)
 
 	tearDownWg.Wait()
 
@@ -355,6 +395,7 @@ func verifyAndRetrieveAssociatedCRsForIBI(
 	*namespace.Builder,
 	*bmh.BmhBuilder,
 	*ibi.ImageClusterInstallBuilder,
+	*bmh.DataImageBuilder,
 ) {
 	By(fmt.Sprintf("Verifying that BMH %s exists in namespace %s", hostName, nsName))
 
@@ -373,19 +414,24 @@ func verifyAndRetrieveAssociatedCRsForIBI(
 
 	Eventually(func(ctx context.Context) bool {
 		condition, _ := imageClusterInstall.GetCompletedCondition()
-
-		return condition.Status == "True"
+		if condition != nil {
+			return condition.Status == "True"
+		}
+		return false
 	}).WithTimeout(60*time.Minute).WithPolling(20*time.Second).WithContext(ctx).Should(BeTrue(),
 		fmt.Sprintf("Image Cluster Install %s is not Completed", nodeID))
 
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster installation %s has succeeded ", nodeID)
+
+	dataImage, err := bmh.PullDataImage(HubAPIClient, hostName, nsName)
+	Expect(err).ToNot(HaveOccurred(), "Failed to pull dataimage %s from namespace %s: %v", hostName, nsName, err)
 
 	namespace := VerifyNamespaceExists(nsName)
 	node := VerifyOranNodeExistsInNamespace(nodeID, ocloudparams.OCloudHardwareManagerPluginNamespace)
 	nodePool := VerifyOranNodePoolExistsInNamespace(
 		nodePoolName, ocloudparams.OCloudHardwareManagerPluginNamespace)
 
-	return node, nodePool, namespace, bareMetalHost, imageClusterInstall
+	return node, nodePool, namespace, bareMetalHost, imageClusterInstall, dataImage
 }
 
 // baseImageExists returns true if the IBI base image exists false otherwise.
@@ -393,6 +439,10 @@ func baseImageExists() bool {
 	By(fmt.Sprintf("Verifying that file %s exists", OCloudConfig.IbiBaseImagePath))
 
 	_, err := os.Stat(OCloudConfig.IbiBaseImagePath)
+
+	if err != nil {
+		glog.V(ocloudparams.OCloudLogLevel).Infof("file %s (base image) does not exist", OCloudConfig.IbiBaseImagePath)
+	}
 
 	return !os.IsNotExist(err)
 }
