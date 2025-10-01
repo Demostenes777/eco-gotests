@@ -23,7 +23,7 @@ const (
 	OCloudO2ImsSubscriptionName = "oran-o2ims-operator-subscription"
 
 	// OCloudHardwareManagerPluginNamespace is the namespace for the O-Cloud hardware manager plugin operator.
-	OCloudHardwareManagerPluginNamespace = "oran-hwmgr-plugin"
+	OCloudHardwareManagerPluginNamespace = "oran-o2ims"
 	//nolint:lll
 	// OCloudHardwareManagerPluginSubscriptionName is the name of the O-Cloud hardware manager plugin operator subscription.
 	OCloudHardwareManagerPluginSubscriptionName = "oran-hwmgr-plugin-operator-subscription"

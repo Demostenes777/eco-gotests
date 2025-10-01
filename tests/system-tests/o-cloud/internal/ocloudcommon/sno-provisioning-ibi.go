@@ -44,7 +44,6 @@ type ImageBasedInstallConfigData struct {
 	PullSecret          string
 	SSHKey              string
 	RegistryCertificate string
-	InterfaceName       string
 	InterfaceIpv6       string
 	DNSIpv6             string
 	NextHopIpv6         string
@@ -262,8 +261,7 @@ func generateBaseImage(ctx SpecContext) {
 		PullSecret:          OCloudConfig.PullSecret,
 		SSHKey:              OCloudConfig.SSHKey,
 		RegistryCertificate: registryCertificate,
-		InterfaceName:       OCloudConfig.InterfaceName,
-		InterfaceIpv6:       OCloudConfig.InterfaceIpv6,
+		InterfaceIpv6:       OCloudConfig.InterfaceIpv6_2,
 		DNSIpv6:             OCloudConfig.DNSIpv6,
 		NextHopIpv6:         OCloudConfig.NextHopIpv6,
 		NextHopInterface:    OCloudConfig.NextHopInterface,
@@ -388,8 +386,8 @@ func verifyAndRetrieveAssociatedCRsForIBI(
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Cluster installation %s has succeeded ", nodeID)
 
 	namespace := VerifyNamespaceExists(nsName)
-	allocatedNode := VerifyAllocatedNodeExistsInNamespace(nodeID, ocloudparams.OCloudHardwareManagerPluginNamespace)
-	nodeAllocationRequest := VerifyNARExistsInNamespace(
+	allocatedNode := VerifyAllocatedNodeExists(nodeID, ocloudparams.OCloudHardwareManagerPluginNamespace)
+	nodeAllocationRequest := VerifyNodeAllocationRequestExistsInNamespace(
 		nodePoolName, ocloudparams.OCloudHardwareManagerPluginNamespace)
 
 	return allocatedNode, nodeAllocationRequest, namespace, bareMetalHost, imageClusterInstall

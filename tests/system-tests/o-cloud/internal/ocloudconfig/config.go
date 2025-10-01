@@ -47,17 +47,16 @@ type OCloudConfig struct {
 	PullSecret string `yaml:"pull_secret" envconfig:"ECO_OCLOUD_PULL_SECRET"`
 	// BaseImageName base image name
 	BaseImageName string `yaml:"base_image_name" envconfig:"ECO_OCLOUD_BASE_IMAGE_NAME"`
-	// InterfaceName interface name
-	InterfaceName string `yaml:"interface_name" envconfig:"ECO_OCLOUD_INTERFACE_NAME"`
-	// InterfaceIpv6 IPv6 address of the interface
-	InterfaceIpv6 string `yaml:"interface_ipv6" envconfig:"ECO_OCLOUD_INTERFACE_IPV6"`
+	// InterfaceIpv6_1 IPv6 address of the interface for the first cluster
+	InterfaceIpv6_1 string `yaml:"interface_ipv6_1" envconfig:"ECO_OCLOUD_INTERFACE_IPV6_1"`
+	// InterfaceIpv6_2 IPv6 address of the interface for the second cluster
+	InterfaceIpv6_2 string `yaml:"interface_ipv6_2" envconfig:"ECO_OCLOUD_INTERFACE_IPV6_2"`
 	// DNSIpv6 IPv6 address of the DNS server
 	DNSIpv6 string `yaml:"dns_ipv6" envconfig:"ECO_OCLOUD_DNS_IPV6"`
 	// NextHopIpv6 IPv6 address of the next hop
 	NextHopIpv6 string `yaml:"next_hop_ipv6" envconfig:"ECO_OCLOUD_NEXT_HOP_IPV6"`
 	// NextHopInterface interface of the next hop
 	NextHopInterface string `yaml:"next_hop_interface" envconfig:"ECO_OCLOUD_NEXT_HOP_INTERFACE"`
-
 	// Spoke1BMC BMC configuration for spoke 1
 	Spoke1BMC *bmc.BMC
 	// Spoke1BMCUsername BMC username for spoke 1

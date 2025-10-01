@@ -25,7 +25,7 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 		ocloudparams.PolicyTemplateParameters,
 		ocloudparams.ClusterInstanceParameters1)
 
-	allocatedNode, nodeAR, namespace, clusterInstance := VerifyAndRetrieveAssociatedCRsForAI(
+	allocatedNode, namespace, clusterInstance := VerifyAndRetrieveAssociatedCRsForAI(
 		provisioningRequest.Object.Name, OCloudConfig.ClusterName1, ctx)
 
 	VerifyAllPoliciesInNamespaceAreCompliant(namespace.Object.Name, ctx, nil, nil)
@@ -34,7 +34,7 @@ func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
 	VerifyProvisioningRequestIsFulfilled(provisioningRequest)
 	glog.V(ocloudparams.OCloudLogLevel).Infof("Provisioning request %s is fulfilled", provisioningRequest.Object.Name)
 
-	DeprovisionAiSnoCluster(provisioningRequest, namespace, clusterInstance, allocatedNode, nodeAR, ctx, nil)
+	DeprovisionAiSnoCluster(provisioningRequest, namespace, clusterInstance, allocatedNode, ctx, nil)
 }
 
 // VerifyFailedSnoProvisioning verifies that the provisioning of a SNO cluster using

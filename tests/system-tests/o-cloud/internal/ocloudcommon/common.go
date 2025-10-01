@@ -272,37 +272,54 @@ func VerifyPoliciesAreNotCompliant(
 	glog.V(ocloudparams.OCloudLogLevel).Infof("all the policies in namespace %s are not compliant", nsName)
 }
 
-// VerifyAllocatedNodeExistsInNamespace verifies that a given AllocatedNode exists in a given namespace.
-func VerifyAllocatedNodeExistsInNamespace(nodeID string, nsName string) *oran.AllocatedNodeBuilder {
-	By(fmt.Sprintf("Verifying that AllocatedNode %s exists in namespace %s ", nodeID, nsName))
+// VerifyAllocatedNodeExists verifies that a given AllocatedNode exists.
+func VerifyAllocatedNodeExists(clusterID string) *oran.AllocatedNodeBuilder {
+	By(fmt.Sprintf("Verifying that NodeAllocationRequest for clusterID %s exists", clusterID))
 
 	listOptions := &runtimeclient.ListOptions{}
-	listOptions.Namespace = nsName
-	oranNodes, err := oran.ListAllocatedNodes(HubAPIClient, *listOptions)
-	Expect(err).ToNot(HaveOccurred(), "Failed to pull allocated node list from namespace %s: %v", nsName, err)
+	listOptions.Namespace = ocloudparams.OCloudHardwareManagerPluginNamespace
 
-	nodeFound := false
-	nodeFoundIndex := 0
+	nodeAllocationRequests, err := oran.ListNodeAllocationRequests(HubAPIClient, *listOptions)
+	Expect(err).ToNot(HaveOccurred(),
+		"Failed to pull node allocation requests: %v", err)
 
-	for index, node := range oranNodes {
-		if nodeID == node.Object.Spec.NodeAllocationRequest {
-			nodeFound = true
-			nodeFoundIndex = index
+	narFound := false
+	narName := ""
+
+	for _, node := range nodeAllocationRequests {
+		if clusterID == node.Object.Spec.ClusterId {
+			narFound = true
+			narName = node.Object.Name
 
 			break
 		}
 	}
+	
+	Expect(narFound).To(BeTrue(),
+		fmt.Sprintf("Failed to pull the NodeAllocationRequest for clusterID %s", clusterID))
+	
+	glog.V(ocloudparams.OCloudLogLevel).Infof("node allocation request %s exists", narName)
+	
+	By(fmt.Sprintf("Verifying that AllocatedNode for NodeAllocationRequest %s exists", narName))
 
-	Expect(nodeFound).To(BeTrue(),
-		fmt.Sprintf("Failed to pull the allocated node with the NodeAllocationRequest %s from namespace %s", nodeID, nsName))
+	oranNodes, err := oran.ListAllocatedNodes(HubAPIClient, *listOptions)
+	Expect(err).ToNot(HaveOccurred(), "Failed to pull allocated node list: %v", err)
 
-	if nodeFound {
-		glog.V(ocloudparams.OCloudLogLevel).Infof("allocated node %s exists in namespace %s", nodeID, nsName)
+	nodeFound := false
 
-		return oranNodes[nodeFoundIndex]
+	for index, node := range oranNodes {
+		if narName == node.Object.Spec.NodeAllocationRequest {
+			nodeFound = true
+			oranNode := oranNodes[index]
+			glog.V(ocloudparams.OCloudLogLevel).Infof("allocated node %s exists", oranNode.Object.Name)
+			return oranNode
+		}
 	}
 
-	glog.V(ocloudparams.OCloudLogLevel).Infof("allocated node %s does not exists in namespace %s", nodeID, nsName)
+	Expect(nodeFound).To(BeTrue(),
+		fmt.Sprintf("Failed to pull the AllocatedNode associated to the NodeAllocationRequest %s", narName))
+
+	glog.V(ocloudparams.OCloudLogLevel).Infof("allocated node does not exists")
 
 	return nil
 }
@@ -325,8 +342,8 @@ func VerifyAllocatedNodeDoesNotExist(
 	glog.V(ocloudparams.OCloudLogLevel).Infof("allocated node %s does not exists", nodeName)
 }
 
-// VerifyNARExistsInNamespace verifies that a given NodeAllocationRequest exists in a given namespace.
-func VerifyNARExistsInNamespace(nodePoolName string, nsName string) *oran.NARBuilder {
+// VerifyNodeAllocationRequestExistsInNamespace verifies that a given NodeAllocationRequest exists in a given namespace.
+func VerifyNodeAllocationRequestExistsInNamespace(nodePoolName string, nsName string) *oran.NARBuilder {
 	By(fmt.Sprintf("Verifying that NodeAllocationRequest %s exists in namespace %s", nodePoolName, nsName))
 
 	oranNodePool, err := oran.PullNodeAllocationRequest(HubAPIClient, nodePoolName, nsName)
@@ -376,14 +393,12 @@ func CreateSnoAPIClient(nodeName string) *clients.Settings {
 func VerifyAndRetrieveAssociatedCRsForAI(
 	prName string,
 	clusterName string,
-	ctx SpecContext) (*oran.AllocatedNodeBuilder, *oran.NARBuilder, *namespace.Builder, *siteconfig.CIBuilder) {
-	allocatedNode := VerifyAllocatedNodeExistsInNamespace(clusterName, ocloudparams.OCloudHardwareManagerPluginNamespace)
-	nodeAllocationRequest := VerifyNARExistsInNamespace(
-		clusterName, ocloudparams.OCloudHardwareManagerPluginNamespace)
+	ctx SpecContext) (*oran.AllocatedNodeBuilder, *namespace.Builder, *siteconfig.CIBuilder) {
+	allocatedNode := VerifyAllocatedNodeExists(clusterName)
 	ns := VerifyNamespaceExists(clusterName)
 	ci := VerifyClusterInstanceCompleted(prName, clusterName, clusterName, ctx)
 
-	return allocatedNode, nodeAllocationRequest, ns, ci
+	return allocatedNode, ns, ci
 }
 
 // DeprovisionAiSnoCluster deprovisions a SNO cluster.
@@ -392,7 +407,6 @@ func DeprovisionAiSnoCluster(
 	namespace *namespace.Builder,
 	clusterInstance *siteconfig.CIBuilder,
 	allocatedNode *oran.AllocatedNodeBuilder,
-	nodeAllocationRequest *oran.NARBuilder,
 	ctx SpecContext,
 	waitGroup *sync.WaitGroup) {
 	if waitGroup != nil {
@@ -405,13 +419,12 @@ func DeprovisionAiSnoCluster(
 
 	var tearDownWg sync.WaitGroup
 
-	tearDownWg.Add(5)
+	tearDownWg.Add(4)
 
 	go VerifyProvisioningRequestIsDeleted(provisioningRequest, &tearDownWg, ctx)
 	go VerifyNamespaceDoesNotExist(namespace, &tearDownWg, ctx)
 	go VerifyClusterInstanceDoesNotExist(clusterInstance, &tearDownWg, ctx)
 	go VerifyAllocatedNodeDoesNotExist(allocatedNode, &tearDownWg, ctx)
-	go VerifyNARDoesNotExist(nodeAllocationRequest, &tearDownWg, ctx)
 
 	tearDownWg.Wait()
 
