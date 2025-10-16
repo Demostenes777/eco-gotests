@@ -54,3 +54,8 @@ const (
 	// SubscriberNamespace is the namespace for the subscriber deployment.
 	SubscriberNamespace = "oran-subscriber"
 )
+
+const (
+	// TemplateFilesFolder path to the template files folder.
+	ConfigFilesFolder = "./internal/ocloudconfig/config-files/"
+)

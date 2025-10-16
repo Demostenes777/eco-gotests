@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: acm-policy-violation-rule
+  namespace: openshift-monitoring
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: acm.alerts
+      rules:
+        - alert: ACMPolicyViolationDetected
+          expr: policy_governance_info{policy_compliant="false", cluster="<managed-cluster-name>"}
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "An ACM Policy violation has been detected on a managed cluster."
+            description: "The ACM policy '{{ $labels.policy_name }}' in namespace '{{ $labels.namespace }}' is non-compliant on managed cluster '{{ $labels.cluster }}'. Violation is on '{{ $labels.violation_name }}'."

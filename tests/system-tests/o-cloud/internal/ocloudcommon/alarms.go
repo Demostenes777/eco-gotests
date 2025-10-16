@@ -10,6 +10,8 @@ import (
 	oranapi "github.com/rh-ecosystem-edge/eco-goinfra/pkg/oran/api"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/oran/api/filter"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/internal/shell"
+	"github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
+	. "github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/o-cloud/internal/ocloudinittools"
 )
 
 // CreateO2IMSClient creates an O2IMS API client using token authentication and returns it.
@@ -33,23 +35,34 @@ func CreateO2IMSClient() (*oranapi.AlarmsClient) {
 //
 //nolint:funlen
 func VerifySuccessfulAlarmRetrieval(ctx SpecContext) {
-	var subscriberURL = "https://oran-subscriber.apps.hub03.oran.telcoqe.eng.rdu2.dc.redhat.com"
-
+	subscriberURL := "https://oran-subscriber.apps.hub03.oran.telcoqe.eng.rdu2.dc.redhat.com"
 	alarmsClient := CreateO2IMSClient()
+
+	VerifyBmhIsAvailable(OCloudConfig.BmhSpoke1, OCloudConfig.InventoryPoolNamespace)
+	VerifyBmhIsAvailable(OCloudConfig.BmhSpoke2, OCloudConfig.InventoryPoolNamespace)
+
+	provisioningRequest := VerifyProvisionSnoCluster(
+		OCloudConfig.TemplateName,
+		OCloudConfig.TemplateVersionAISuccess,
+		OCloudConfig.NodeClusterName1,
+		OCloudConfig.OCloudSiteID,
+		ocloudparams.PolicyTemplateParameters,
+		ocloudparams.ClusterInstanceParameters1)
+
+	VerifyOcloudCRsExist(provisioningRequest)
+
+	clusterInstance := VerifyClusterInstanceCompleted(provisioningRequest, ctx)
+	nsname := provisioningRequest.Object.Status.Extensions.ClusterDetails.Name
+
+
 	By("creating a new subscription")
 	subscriptionID := uuid.New()
-	subscriptions, err := alarmsClient.ListSubscriptions()
-	Expect(err).ToNot(HaveOccurred(), "Failed to list subscriptions")
-
-	By("verifying that there are no subscriptions")
-	Expect(len(subscriptions)).NotTo(BeZero(), "There should be no subscriptions")
-
+	
 	subscription, err := alarmsClient.CreateSubscription(oranapi.AlarmSubscriptionInfo{
 		ConsumerSubscriptionId: &subscriptionID,
-		// Callback URLs must be unique, so we use the subscription ID as a suffix.
 		Callback: subscriberURL + "/" + subscriptionID.String(),
 	})
-	Expect(err).ToNot(HaveOccurred(), "Failed to create first test subscription")
+	Expect(err).ToNot(HaveOccurred(), "Failed to create a new subscription")
 
 	By("filtering subscriptions by the first ConsumerSubscriptionId")
 	consumerIDFilter := filter.Equals("consumerSubscriptionId", subscriptionID.String())
