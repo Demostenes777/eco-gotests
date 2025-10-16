@@ -1,0 +1,24 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: "2025-09-16T09:51:09Z"
+  generation: 1
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-master-ssh
+  resourceVersion: "2573"
+  uid: 935644bc-3340-47d6-a7b7-bfb15fc751ef
+spec:
+  baseOSExtensionsContainerImage: ""
+  config:
+    ignition:
+      version: 3.2.0
+    passwd:
+      users:
+      - name: core
+        sshAuthorizedKeys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC9ZvHo4n43Z89sc4twJ9W6lkYfbA1C6hsMF3kNJo+5vMYufmP2jAPJgurmPZVKdrTCqIa2nB4ZtTcybwaiwPWGgSrDm1lkkuCLqQ8X8OWVqwVlACWchc6UzpMqWWy2CuEOpSedds9fnRaYRrfufKPKTuRnQuqst5G6iEwtudgXcmGScGn0vu8odO9BRraJmV/Oo71uMRIvisEk68JWtYo5Yg0HWJ2OBfg/RswuDBxFIUz7Tn2V1HiMqes+vnVuH8VrCm4yuB+8mOpY/qNJWxm3R5/b9+F13hJ1rF+CZBb5cPjBI5eTUbXOWSyPAfFlAB8taiM1IRYyhdEDN+hLxVK9jGENLztr7SbgjUjw66CNGeGWGQ+ijtNjmAbzFHmbApKOFNtX7IL7bF0+4WLwytH/qBiiqT7+0yeTNlrV1SukiJo4uYf06d3RGU6gHCxHBlCDrJ6cPKInepLHMU/qiTtbQH5MFlQGv1mYVJ4HJUwPMiYVLycyCGmlT6Yn3spH9eU= kni@registry.hub03.oran.telcoqe.eng.rdu2.dc.redhat.com 
+  fips: false
+  kernelArguments: null
+  kernelType: ""
+  osImageURL: ""
