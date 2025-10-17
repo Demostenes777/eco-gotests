@@ -1,11 +1,16 @@
 package ocloudparams
 
+import "time"
+
 const (
 	// Label represents O-Cloud system tests label that can be used for test cases selection.
 	Label = "ocloud"
 
 	// OCloudLogLevel configures logging level for O-Cloud related tests.
 	OCloudLogLevel = 90
+
+	// BMHAvailabilityTimeout is the timeout for BMH availability.
+	BMHAvailabilityTimeout = 60 * time.Minute
 
 	// AcmNamespace is the namespace for ACM.
 	AcmNamespace = "rhacm"
@@ -17,13 +22,11 @@ const (
 	// OpenshiftGitOpsSubscriptionName is the name of the GitOps operator subscription.
 	OpenshiftGitOpsSubscriptionName = "openshift-gitops-operator-subscription"
 
-	// OCloudO2ImsNamespace is the namespace for the O-Cloud manager operator.
-	OCloudO2ImsNamespace = "oran-o2ims"
+	// OranO2ImsNamespace is the namespace for the O-Cloud manager operator.
+	OranO2ImsNamespace = "oran-o2ims"
 	// OCloudO2ImsSubscriptionName is the name of the O-Cloud manager operator subscription.
 	OCloudO2ImsSubscriptionName = "oran-o2ims-operator-subscription"
 
-	// OCloudHardwareManagerPluginNamespace is the namespace for the O-Cloud hardware manager plugin operator.
-	OCloudHardwareManagerPluginNamespace = "oran-hwmgr-plugin"
 	//nolint:lll
 	// OCloudHardwareManagerPluginSubscriptionName is the name of the O-Cloud hardware manager plugin operator subscription.
 	OCloudHardwareManagerPluginSubscriptionName = "oran-hwmgr-plugin-operator-subscription"

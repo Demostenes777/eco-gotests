@@ -18,7 +18,7 @@ var (
 	// ReporterNamespacesToDump tells to the reporter from where to collect logs.
 	ReporterNamespacesToDump = map[string]string{
 		"oran-hwmgr-plugin": "oran-hwmgr-plugin",
-		"oran-o2ims":        "oran-o2ims",
+		OranO2ImsNamespace:  OranO2ImsNamespace,
 	}
 
 	// ReporterCRDsToDump tells to the reporter what CRs to dump.
@@ -39,6 +39,36 @@ var (
 		"nodes": []map[string]any{
 			{
 				"hostName": OCloudConfig.HostName1,
+				"nodeNetwork": map[string]any{
+					"config": map[string]any{
+						"interfaces": []map[string]any{
+							{
+								"ipv6": map[string]any{
+									"address": []map[string]any{
+										{
+											"ip":            OCloudConfig.InterfaceIpv6_1,
+											"prefix-length": 64,
+										},
+									},
+								},
+							},
+						},
+						"dns-resolver": map[string]any{
+							"config": map[string]any{
+								"server": []string{OCloudConfig.DNSIpv6},
+							},
+						},
+						"routes": map[string]any{
+							"config": []map[string]any{
+								{
+									"destination":        "::/0",
+									"next-hop-interface": OCloudConfig.NextHopInterface,
+									"next-hop-address":   OCloudConfig.NextHopIpv6,
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -53,22 +83,27 @@ var (
 					"config": map[string]any{
 						"interfaces": []map[string]any{
 							{
-								"name":  OCloudConfig.InterfaceName,
-								"type":  "ethertype",
-								"state": "up",
 								"ipv6": map[string]any{
-									"enabled": "true",
 									"address": []map[string]any{
 										{
-											"ip":            OCloudConfig.InterfaceIpv6,
-											"prefix-length": "64",
+											"ip":            OCloudConfig.InterfaceIpv6_2,
+											"prefix-length": 64,
 										},
 									},
-									"dhcp":     "false",
-									"autoconf": "false",
 								},
-								"ipv4": map[string]any{
-									"enabled": "false",
+							},
+						},
+						"dns-resolver": map[string]any{
+							"config": map[string]any{
+								"server": []string{OCloudConfig.DNSIpv6},
+							},
+						},
+						"routes": map[string]any{
+							"config": []map[string]any{
+								{
+									"destination":        "::/0",
+									"next-hop-interface": OCloudConfig.NextHopInterface,
+									"next-hop-address":   OCloudConfig.NextHopIpv6,
 								},
 							},
 						},
@@ -80,10 +115,10 @@ var (
 
 	//nolint:lll
 	// SkopeoRedhatOperatorsUpgrade command to create a tag for the redhat-operators upgrade.
-	SkopeoRedhatOperatorsUpgrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.18-new docker://%s/olm/redhat-operators:v4.18-day2"
+	SkopeoRedhatOperatorsUpgrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.20-new docker://%s/olm/redhat-operators:v4.20-day2"
 	//nolint:lll
 	// SkopeoRedhatOperatorsDowngrade command to create a tag for the redhat-operators downgrade.
-	SkopeoRedhatOperatorsDowngrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.18-old docker://%s/olm/redhat-operators:v4.18-day2"
+	SkopeoRedhatOperatorsDowngrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.20-old docker://%s/olm/redhat-operators:v4.20-day2"
 	//nolint:lll
 	// SnoKubeconfigCreate command to get the SNO kubeconfig file.
 	SnoKubeconfigCreate = "oc -n %s get secret %s-admin-kubeconfig -o json | jq -r .data.kubeconfig | base64 -d > tmp/%s/auth/kubeconfig"
