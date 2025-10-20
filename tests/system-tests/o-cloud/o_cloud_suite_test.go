@@ -13,7 +13,6 @@ import (
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/reporter"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/o-cloud/internal/ocloudparams"
 	_ "github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/o-cloud/tests"
-
 )
 
 var (

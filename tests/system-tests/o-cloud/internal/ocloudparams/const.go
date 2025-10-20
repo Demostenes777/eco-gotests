@@ -56,6 +56,6 @@ const (
 )
 
 const (
-	// TemplateFilesFolder path to the template files folder.
+	// ConfigFilesFolder path to the config files folder.
 	ConfigFilesFolder = "./internal/ocloudconfig/config-files/"
 )
