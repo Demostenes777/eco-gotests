@@ -8,13 +8,13 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/namespace"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/reportxml"
-	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netenv"
 	. "github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netinittools"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/internal/tsparams"
 	_ "github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/tests"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/cluster"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/params"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/reporter"
+	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/sriovoperator"
 )
 
 var (
@@ -39,7 +39,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred(), "error to create test namespace")
 
 	By("Verifying if sriov tests can be executed on given cluster")
-	err = netenv.IsSriovDeployed(APIClient, NetConfig)
+	err = sriovoperator.IsSriovDeployed(APIClient, NetConfig.SriovOperatorNamespace)
 	Expect(err).ToNot(HaveOccurred(), "Cluster doesn't support sriov test cases")
 
 	By("Pulling test images on cluster before running test cases")
