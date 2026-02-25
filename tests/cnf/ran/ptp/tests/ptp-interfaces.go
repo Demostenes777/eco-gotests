@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"fmt"
+	"maps"
 	"slices"
 	"time"
 
@@ -249,7 +250,12 @@ var _ = Describe("PTP Interfaces", Label(tsparams.LabelInterfaces), func() {
 			}
 
 			By("validating that the ptp metric stays in locked state")
-			err = metrics.AssertQuery(context.TODO(), prometheusAPI, metrics.ClockStateQuery{}, metrics.ClockStateLocked,
+			masterNICs := slices.Collect(maps.Keys(masterInterfaceGroups))
+			clockStateQuery := metrics.ClockStateQuery{
+				Node:      metrics.Equals(nodeName),
+				Interface: metrics.Includes(masterNICs...),
+			}
+			err = metrics.AssertQuery(context.TODO(), prometheusAPI, clockStateQuery, metrics.ClockStateLocked,
 				metrics.AssertWithStableDuration(30*time.Second),
 				metrics.AssertWithTimeout(45*time.Second))
 			Expect(err).ToNot(HaveOccurred(), "Failed to assert that the PTP metric stays in locked state")
