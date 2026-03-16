@@ -21,10 +21,10 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/sriov"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/cmd"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netenv"
-
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netparam"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/internal/sriovenv"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/internal/tsparams"
+	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/perfprofile"
 	"gopkg.in/k8snetworkplumbingwg/multus-cni.v4/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -76,7 +76,8 @@ var _ = Describe(
 
 			By("Fetching SR-IOV Vendor ID for interface under test")
 
-			sriovVendorID, err = sriovenv.DiscoverInterfaceUnderTestVendorID(
+			sriovVendorID, err = sriovoperator.DiscoverInterfaceUnderTestVendorID(
+				APIClient, NetConfig.SriovOperatorNamespace,
 				sriovInterfacesUnderTest[0], workerNodeList[0].Definition.Name)
 			Expect(err).ToNot(HaveOccurred(), "Failed to fetch SR-IOV Vendor ID for interface under test")
 
@@ -169,13 +170,15 @@ var _ = Describe(
 			BeforeAll(func() {
 				By("Deploying PerformanceProfile if it's not installed")
 
-				err := netenv.DeployPerformanceProfile(
+				err := perfprofile.DeployPerformanceProfile(
 					APIClient,
-					NetConfig,
+					NetConfig.WorkerLabelMap,
+					NetConfig.CnfMcpLabel,
 					"performance-profile-dpdk",
 					"1,3,5,7,9,11,13,15,17,19,21,23,25",
 					"0,2,4,6,8,10,12,14,16,18,20",
-					24)
+					24,
+					tsparams.MCOWaitTimeout)
 				Expect(err).ToNot(HaveOccurred(), "Fail to deploy PerformanceProfile")
 			})
 			BeforeEach(func() {
@@ -216,13 +219,15 @@ var _ = Describe(
 			BeforeAll(func() {
 				By("Deploying PerformanceProfile if it's not installed")
 
-				err := netenv.DeployPerformanceProfile(
+				err := perfprofile.DeployPerformanceProfile(
 					APIClient,
-					NetConfig,
+					NetConfig.WorkerLabelMap,
+					NetConfig.CnfMcpLabel,
 					"performance-profile-dpdk",
 					"1,3,5,7,9,11,13,15,17,19,21,23,25",
 					"0,2,4,6,8,10,12,14,16,18,20",
-					24)
+					24,
+					tsparams.MCOWaitTimeout)
 				Expect(err).ToNot(HaveOccurred(), "Fail to deploy PerformanceProfile")
 			})
 			BeforeEach(func() {
