@@ -13,11 +13,11 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/reportxml"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/sriov"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/cmd"
-	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netenv"
 	. "github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netinittools"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/internal/netparam"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/internal/sriovenv"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/cnf/core/network/sriov/internal/tsparams"
+	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/cluster"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/sriovoperator"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -75,7 +75,7 @@ var _ = Describe(
 		BeforeAll(func() {
 			By("Checking if cluster is SNO")
 
-			isSNO, err := netenv.IsSNOCluster(APIClient)
+			isSNO, err := cluster.IsSNOCluster(APIClient)
 			Expect(err).ToNot(HaveOccurred(), "Failed to check if cluster is SNO")
 
 			if isSNO {
