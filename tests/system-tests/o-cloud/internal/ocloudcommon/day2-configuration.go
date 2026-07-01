@@ -450,16 +450,16 @@ func modifyPTPDeploymentResources(
 
 // upgradeOperatorImages upgrades the operator images.
 func upgradeOperatorImages() {
-	cmd := fmt.Sprintf(ocloudparams.SkopeoRedhatOperatorsUpgrade,
-		OCloudConfig.AuthfilePath, OCloudConfig.Registry5000, OCloudConfig.Registry5000)
+	cmd := ocloudparams.BuildSkopeoRedhatOperatorsUpgradeCmd(
+		OCloudConfig.AuthfilePath, OCloudConfig.Registry5000, OCloudConfig.HubOCPVersion)
 	_, err := shell.ExecuteCmd(cmd)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging redhat-operators image for upgrade: %v", err))
 }
 
 // downgradeOperatorImages downgrades the operator images.
 func downgradeOperatorImages() {
-	cmd := fmt.Sprintf(ocloudparams.SkopeoRedhatOperatorsDowngrade,
-		OCloudConfig.AuthfilePath, OCloudConfig.Registry5000, OCloudConfig.Registry5000)
+	cmd := ocloudparams.BuildSkopeoRedhatOperatorsDowngradeCmd(
+		OCloudConfig.AuthfilePath, OCloudConfig.Registry5000, OCloudConfig.HubOCPVersion)
 	_, err := shell.ExecuteCmd(cmd)
 	Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Error tagging redhat-operators image for downgrade: %v", err))
 }
