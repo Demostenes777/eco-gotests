@@ -1,6 +1,9 @@
 package ocloudparams
 
 import (
+	"fmt"
+	"strings"
+
 	hardwaremanagementv1alpha1 "github.com/openshift-kni/oran-o2ims/api/hardwaremanagement/v1alpha1"
 	provisioningv1alpha1 "github.com/openshift-kni/oran-o2ims/api/provisioning/v1alpha1"
 
@@ -111,12 +114,9 @@ var (
 		},
 	}
 
-	//nolint:lll
-	// SkopeoRedhatOperatorsUpgrade command to create a tag for the redhat-operators upgrade.
-	SkopeoRedhatOperatorsUpgrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.20-new docker://%s/olm/redhat-operators:v4.20-day2"
-	//nolint:lll
-	// SkopeoRedhatOperatorsDowngrade command to create a tag for the redhat-operators downgrade.
-	SkopeoRedhatOperatorsDowngrade = "skopeo copy --authfile %s --tls-verify=false docker://%s/olm/redhat-operators:v4.20-old docker://%s/olm/redhat-operators:v4.20-day2"
+	// skopeoRedhatOperatorsTemplate is the command template for tagging redhat-operators catalog images.
+	skopeoRedhatOperatorsTemplate = "skopeo copy --authfile %s --tls-verify=false" +
+		" docker://%s/olm/redhat-operators:v%s-%s docker://%s/olm/redhat-operators:v%s-day2"
 	//nolint:lll
 	// SnoKubeconfigCreate command to get the SNO kubeconfig file.
 	SnoKubeconfigCreate = "oc -n %s get secret %s-admin-kubeconfig -o json | jq -r .data.kubeconfig | base64 -d > tmp/%s/auth/kubeconfig"
@@ -153,3 +153,28 @@ var (
 	// PtpMemoryLimit is cpu limit for the PTP container.
 	PtpMemoryLimit = "1Mi"
 )
+
+// BuildSkopeoRedhatOperatorsUpgradeCmd constructs the skopeo command for upgrading redhat-operators catalog.
+func BuildSkopeoRedhatOperatorsUpgradeCmd(authfilePath, registry, ocpVersion string) string {
+	majorMinor := extractMajorMinor(ocpVersion)
+
+	return fmt.Sprintf(skopeoRedhatOperatorsTemplate,
+		authfilePath, registry, majorMinor, "new", registry, majorMinor)
+}
+
+// BuildSkopeoRedhatOperatorsDowngradeCmd constructs the skopeo command for downgrading redhat-operators catalog.
+func BuildSkopeoRedhatOperatorsDowngradeCmd(authfilePath, registry, ocpVersion string) string {
+	majorMinor := extractMajorMinor(ocpVersion)
+
+	return fmt.Sprintf(skopeoRedhatOperatorsTemplate,
+		authfilePath, registry, majorMinor, "old", registry, majorMinor)
+}
+
+func extractMajorMinor(version string) string {
+	parts := strings.SplitN(version, ".", 3)
+	if len(parts) < 2 {
+		return version
+	}
+
+	return parts[0] + "." + parts[1]
+}

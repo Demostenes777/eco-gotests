@@ -1,3 +1,4 @@
+
 package ocloudconfig
 
 import (
@@ -141,6 +142,9 @@ type OCloudConfig struct {
 	SubscriberDomain string `yaml:"subscriber_domain" envconfig:"ECO_OCLOUD_SUBSCRIBER_DOMAIN"`
 	// O2IMSBaseURL is the base URL for the O2IMS API.
 	O2IMSBaseURL string `yaml:"o2ims_base_url" envconfig:"ECO_OCLOUD_O2IMS_BASE_URL"`
+
+	// HubOCPVersion is the OCP version of the hub cluster (e.g., "4.22.0"), populated during initialization.
+	HubOCPVersion string
 }
 
 // NewOCloudConfig returns instance of OCloudConfig config type.

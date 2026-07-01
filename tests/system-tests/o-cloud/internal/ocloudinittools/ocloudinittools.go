@@ -4,7 +4,9 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/bmc"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/clients"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/internal/inittools"
+	"github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/internal/platform"
 	"github.com/rh-ecosystem-edge/eco-gotests/tests/system-tests/o-cloud/internal/ocloudconfig"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -21,4 +23,14 @@ var (
 func init() {
 	OCloudConfig = ocloudconfig.NewOCloudConfig()
 	HubAPIClient = inittools.APIClient
+
+	if HubAPIClient != nil {
+		hubOCPVersion, err := platform.GetOCPVersion(HubAPIClient)
+		if err != nil {
+			klog.Warningf("Failed to retrieve hub OCP version: %v", err)
+		} else {
+			OCloudConfig.HubOCPVersion = hubOCPVersion
+			klog.V(90).Infof("Detected hub OCP version: %s", hubOCPVersion)
+		}
+	}
 }
