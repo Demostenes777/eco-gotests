@@ -1,0 +1,1 @@
+/home/amendiol/Development/claude/projects/eco-gotests/rules/yaml-conventions.md

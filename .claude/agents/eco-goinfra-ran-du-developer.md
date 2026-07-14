@@ -1,0 +1,1 @@
+/home/amendiol/Development/claude/projects/eco-gotests/agents/eco-goinfra-ran-du-developer.md

@@ -1,0 +1,1 @@
+/home/amendiol/Development/claude/projects/eco-gotests/rules/shell-scripting.md

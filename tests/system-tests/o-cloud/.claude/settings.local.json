@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/amendiol/Development/eco-gotests/tests/system-tests/**)",
+      "Read(//home/amendiol/Development/eco-gotests/tests/system-tests/internal/systemtestsconfig/**)"
+    ]
+  }
+}

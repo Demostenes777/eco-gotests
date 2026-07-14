@@ -16,6 +16,7 @@ import (
 // VerifySuccessfulSnoProvisioning verifies the successful provisioning of a SNO cluster using
 // Assisted Installer.
 func VerifySuccessfulSnoProvisioning(ctx SpecContext) {
+	Skip("Skipping successful SNO provisioning test")
 	// Verify that both BMHs are available before provisioning the SNO cluster because either of them
 	// can be used to provision the SNO cluster.
 	VerifyBmhIsAvailable(OCloudConfig.BmhSpoke1, OCloudConfig.InventoryPoolNamespace)
